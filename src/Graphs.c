@@ -47,5 +47,11 @@ BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* node
 }
 
 BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, const double* nodeValues, BinomialTreeForest32* dest) {
+    dest->nodeCount = nodeCount;
+    dest->rootCount = nodeCount;
+    for(uint32_t i = 0; i < nodeCount; i++) {
+        dest->parents[i] = ROOT;
+        dest->roots[i] = i;
+    }
     return dest; 
 }
