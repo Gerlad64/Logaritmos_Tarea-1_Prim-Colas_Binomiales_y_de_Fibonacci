@@ -3,6 +3,7 @@
 
 
 BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* nodeValues, BinomialTreeForest32* dest) {
+    dest->nodeCount = nodeCount;
     dest->rootCount = 32;
     for(uint32_t i = 0; i < dest->rootCount; i++) dest->roots[i] = FREE;
     
