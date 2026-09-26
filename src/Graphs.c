@@ -56,3 +56,21 @@ BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, BinomialTreeForest32* 
     }
     return dest; 
 }
+
+
+void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost) {
+    values[x] = cost;
+    uint32_t y = dest->parents[x];
+    
+    double temp;
+    // si node está 
+    while( y != ROOT && values[x] < values[y] ) {
+        // values[node] <-> values[nodeDown]
+        temp = values[y];
+        values[y] = values[x];
+        values[x] = temp;
+        
+        x = y;
+        y = dest->parents[x];
+    }
+}
