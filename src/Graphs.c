@@ -1,5 +1,6 @@
 
 #include <Graphs.h>
+#include <stdint.h>
 
 
 BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* nodeValues, BinomialTreeForest32* dest) {

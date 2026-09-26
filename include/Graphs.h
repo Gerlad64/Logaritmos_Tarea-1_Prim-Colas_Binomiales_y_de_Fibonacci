@@ -204,7 +204,7 @@ uint32_t extractMin_Fibo32(BinomialTreeForest32* dest, const double* values);
  * @param node Identificador del nodo que decrementará su costo
  * @param cost Nuevo costo del nodo
  */
-void decreaseKey_Binomial32(BinomialTreeForest32* dest, const double* values, uint32_t node, double cost);
+void decreaseKey_Binomial32(BinomialTreeForest32* dest, double* values, uint32_t x, double cost);
 
 /**
  * @brief Modifica la Cola de Fibonacci @p dest para que mantenga su estructura 
@@ -216,7 +216,7 @@ void decreaseKey_Binomial32(BinomialTreeForest32* dest, const double* values, ui
  * @param node Identificador del nodo que decrementará su costo
  * @param cost Nuevo costo del nodo
  */
-void decreaseKey_Fibo32(BinomialTreeForest32* dest, const double* values, uint32_t node, double cost);
+void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, double cost);
 
 /**
  * @macro STACK_BINOMIAL_QUEUE
