@@ -172,6 +172,52 @@ BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* node
  */
 BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, BinomialTreeForest32* dest);
 
+
+/**
+ * @brief Extra el nodo de valor mínimo de la Cola Binomial @p dest y retorna su identificador.
+ * 
+ * @param dest Cola Binomial que será modificada para tener el nodo de valor mínimo extraido.
+ * @param values Arreglo de valores de tamaño @c dest->nodeCount, usado para consultar los valores de los nodos
+ * 
+ * @returns Identificador del nodo extraído, su valor se consulta al arreglos @p values : @c values[x]
+ */
+uint32_t extractMin_Binomial32(BinomialTreeForest32* dest, const double* values);
+
+/**
+ * @brief Extra el nodo de valor mínimo de la Cola de Fibonacci @p dest y retorna su identificador.
+ * 
+ * @param dest Cola de Fibonacci que será modificada para tener el nodo de valor mínimo extraido.
+ * @param values Arreglo de valores de tamaño @c dest->nodeCount, usado para consultar los valores de los nodos
+ * 
+ * @returns Identificador del nodo extraído, su valor se consulta al arreglos @p values : @c values[x]
+ */
+uint32_t extractMin_Fibo32(BinomialTreeForest32* dest, const double* values);
+
+
+/**
+ * @brief Modifica la Cola Binomial @p dest para que mantenga su estructura 
+ * luego de reducir a @p cost el costo actual del nodo identificado por @p x
+ * 
+ * @param dest Cola Binomial que será modificada para decrementar el costo de un nodo
+ * @param values Arreglo de valores de tamaño @c dest->nodeCount, usado para consultar los valores
+ * de los nodos.
+ * @param node Identificador del nodo que decrementará su costo
+ * @param cost Nuevo costo del nodo
+ */
+void decreaseKey_Binomial32(BinomialTreeForest32* dest, const double* values, uint32_t node, double cost);
+
+/**
+ * @brief Modifica la Cola de Fibonacci @p dest para que mantenga su estructura 
+ * luego de reducir a @p cost el costo actual del nodo identificado por @p x.
+ * 
+ * @param dest Cola de Fibonacci que será modificada para decrementar el costo de un nodo
+ * @param values Arreglo de valores de tamaño @c dest->nodeCount, usado para consultar los valores
+ * de los nodos.
+ * @param node Identificador del nodo que decrementará su costo
+ * @param cost Nuevo costo del nodo
+ */
+void decreaseKey_Fibo32(BinomialTreeForest32* dest, const double* values, uint32_t node, double cost);
+
 /**
  * @macro STACK_BINOMIAL_QUEUE
  * @brief Instancia e inicializa una Cola Binomial utilizando memoria de *stack*.
