@@ -181,6 +181,7 @@ constexpr uint32_t NO_CHILD = (uint32_t)(-1);
  */
 static inline void addChildren(BinomialTreeForest32* dest, uint32_t p, uint32_t c) {
     uint64_t childIndex = (uint64_t)p * 32 + dest->deg[p];
+    dest->parents[c] = p;
     dest->children[childIndex] = c;
     dest->deg[p] += 1;
 }

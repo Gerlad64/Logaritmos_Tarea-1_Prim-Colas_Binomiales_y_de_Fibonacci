@@ -26,7 +26,6 @@ void carry(BinomialTreeForest32 *dest, const double* nodeValues, uint32_t carryN
 
         // se escoge como nuevo valor de carry el de menor valor
         if( carryValue > nodeValues[currentRoot]) { // nodeValues[currentRoot] es un valor ya consultado
-            dest->parents[carryNode] = currentRoot;
             addChildren(dest, currentRoot, carryNode);
             carryNode = currentRoot;
             carryValue = nodeValues[currentRoot];
@@ -34,7 +33,6 @@ void carry(BinomialTreeForest32 *dest, const double* nodeValues, uint32_t carryN
         else {
             // carryNode es menor o igual: adopta a currentRoot
             // y este pierde su estatus de raíz
-            dest->parents[currentRoot] = carryNode;
             addChildren(dest, carryNode, currentRoot);
         }
         // se desaloja roots[r]
