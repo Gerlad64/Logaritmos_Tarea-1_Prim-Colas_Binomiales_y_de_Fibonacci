@@ -67,6 +67,36 @@ BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, const double* nodeValu
     return dest; 
 }
 
+uint32_t extractMin_Binomial32(BinomialTreeForest32 *dest, const double *values) {
+    
+    uint32_t minNode = dest->minNode;
+    // maxDeg también indica su posición en roots
+    // ya que el mínimo necesariamente pertenecía a la raíz
+    uint32_t maxDeg  = dest->deg[minNode];
+    // se libera la raíz
+    dest->roots[maxDeg] = FREE;
+    // inicio de la lista de hijos
+    uint64_t childIndex = (uint64_t)minNode * 32;
+    // se hace FREE para encontrar el nuevo min
+    dest->minNode = FREE;
+    // Se hace carry para añadir los arboles 
+    // huerfanos (hijos de minNode extraido)
+    for(uint32_t deg = 0; deg < maxDeg; deg++) {
+        carry(dest, values, dest->children[childIndex++], deg);
+    }
+    // carry actualiza el mínimo hasta maxDeg
+    // por lo que quedan raíces por revisar
+    for(uint32_t r = maxDeg + 1; r < dest->rootCount; r++) {
+        uint32_t currentRoot = dest->roots[r];
+        if(currentRoot != FREE && values[currentRoot] < values[dest->minNode]) {
+           dest->minNode = currentRoot; 
+        }
+        
+    }
+    // retorna el nodo extraido
+    dest->deg[minNode] = 0;
+    return minNode;
+}
 
 void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost) {
     values[x] = cost;
