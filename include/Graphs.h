@@ -188,7 +188,7 @@ BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* node
  * @return Puntero a la estructura @p dest inicializada
  *
  */
-BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, BinomialTreeForest32* dest);
+BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, const double* nodeValues, BinomialTreeForest32* dest);
 
 
 /**

@@ -54,13 +54,16 @@ BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* node
     return dest; 
 }
 
-BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, BinomialTreeForest32* dest) {
+BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, const double* nodeValues, BinomialTreeForest32* dest) {
     dest->nodeCount = nodeCount;
     dest->rootCount = nodeCount;
+    uint32_t minNode = 0;
     for(uint32_t i = 0; i < nodeCount; i++) {
         dest->parents[i] = ROOT;
         dest->roots[i] = i;
+        if( nodeValues[minNode] > nodeValues[i]) minNode = i;
     }
+    dest->minNode = minNode;
     return dest; 
 }
 
