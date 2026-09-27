@@ -132,10 +132,16 @@ typedef struct {
     uint32_t nodeCount;
     /** Número total de raíces en el bosque. */
     uint32_t rootCount;
+    /** */
+    uint32_t minNode;
     /** Arreglo de tamaño @p nodeCount que asigna el índice de un nodo con su padre. */
     uint32_t* parents;
     /** Arreglo que contiene los índices que son raíces. */
     uint32_t* roots;
+    /** */
+    uint32_t* children;
+    /** */
+    uint32_t* deg;
 } BinomialTreeForest32;
 
 constexpr uint32_t ROOT = (uint32_t)(-1);
@@ -233,8 +239,11 @@ void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, 
     initBinomialQueue32((N), (VALUES), &(BinomialTreeForest32){ \
         .nodeCount = (N), \
         .rootCount = (0), \
+        .minNode = (FREE), \
         .parents = (uint32_t[N]), \
-        .roots  = (uint32_t[32]) \
+        .roots  = (uint32_t[32]), \
+        .children = (uint32_t[N*32]), \
+        .deg = (uint32_t[N]) \
     })
 
 /**
@@ -252,6 +261,9 @@ void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, 
     initFiboQueue((N), &BinomialTreeForest32{ \
         .nodeCount = (N), \
         .rootCount = (N), \
+        .minNode = (FREE), \
         .parents = (uint32_t[N]), \
-        .roots = (uint32_t[N]) \
+        .roots = (uint32_t[N]), \
+        .children = (uint32_t[N*32]), \
+        .deg = (uint32_t[N]) \
     })
