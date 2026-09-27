@@ -3,6 +3,45 @@
 #include <stdint.h>
 
 
+void carry(BinomialTreeForest32 *dest, const double* nodeValues, uint32_t carryNode, uint32_t degree) {
+    double carryValue = nodeValues[carryNode];
+    // se realiza el proceso de carry recorriendo las raíces
+    for(uint32_t r = degree; r < dest->rootCount; r++) {
+        uint32_t currentRoot = dest->roots[r];
+
+        // Si el espacio r está libre
+        // ahora es ocupado por carryNode
+        if( currentRoot == FREE ) {
+            // colocar carryNode en una raíz
+            dest->roots[r] = carryNode;
+            dest->parents[carryNode] = ROOT;
+
+            if(dest->minNode == FREE || carryValue <=nodeValues[dest->minNode])
+                dest->minNode = carryNode;
+
+            break;
+        }
+        // Si el espacio r está ocupado
+        // se realiza la 'suma' de arboles
+
+        // se escoge como nuevo valor de carry el de menor valor
+        if( carryValue > nodeValues[currentRoot]) { // nodeValues[currentRoot] es un valor ya consultado
+            dest->parents[carryNode] = currentRoot;
+            addChildren(dest, currentRoot, carryNode);
+            carryNode = currentRoot;
+            carryValue = nodeValues[currentRoot];
+        }
+        else {
+            // carryNode es menor o igual: adopta a currentRoot
+            // y este pierde su estatus de raíz
+            dest->parents[currentRoot] = carryNode;
+            addChildren(dest, carryNode, currentRoot);
+        }
+        // se desaloja roots[r]
+        dest->roots[r] = FREE;
+    }
+}
+
 BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* nodeValues, BinomialTreeForest32* dest) {
     dest->nodeCount = nodeCount;
     dest->rootCount = 32;
