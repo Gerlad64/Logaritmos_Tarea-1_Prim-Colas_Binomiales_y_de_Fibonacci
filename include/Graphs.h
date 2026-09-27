@@ -146,6 +146,18 @@ typedef struct {
 
 constexpr uint32_t ROOT = (uint32_t)(-1);
 constexpr uint32_t FREE = (uint32_t)(-1);
+constexpr uint32_t NO_CHILD = (uint32_t)(-1);
+
+static inline void addChildren(BinomialTreeForest32* dest, uint32_t p, uint32_t c) {
+    uint64_t childIndex = (uint64_t)p * 32 + dest->deg[p];
+    dest->children[childIndex] = c;
+    dest->deg[p] += 1;
+}
+
+/**
+ *@brief *Acarrea* el nodo @p carryNode de grado @p degree (es decir, cuantos hijos tiene) sobre la estructura @p dest 
+ */
+void carry(BinomialTreeForest32* dest, const double* nodeValues, uint32_t carryNode, uint32_t degree);
 
 /**
  * @brief Inicializa una Cola Binomial insertando valores secuencialmente.
