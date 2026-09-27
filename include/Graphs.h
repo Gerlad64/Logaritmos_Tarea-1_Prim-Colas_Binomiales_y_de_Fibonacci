@@ -296,6 +296,55 @@ void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, 
     })
 
 /**
+ * @brief Instancia e inicializa una Cola Binomial utilizando memoria de heap.
+ * 
+ * @note El arreglo de raíces reserva espacio para 32 elementos, ya que un bosque binomial
+ * con identificadores de 32 bits sin signo no puede tener más de 32 raíces.
+ * @note Se debe liberar la memoria prestada con free
+ * 
+ * @param N número de nodos (@c nodeCount)
+ * @param values puntero al arreglo de valores (@c nodeValues)
+ * @return Puntero a una estructura @c BinomialTreeForest32 que vive en el heap.
+ */
+static inline BinomialTreeForest32* HEAP_BINOMIAL_QUEUE(uint32_t N, double* values) {
+    size_t total_elements = 
+        N    + // arreglo parents
+        32   + //arreglo roots
+        N*32 + //arreglo children
+        N;     //arreglo deg
+    size_t total_size = sizeof(BinomialTreeForest32) + total_elements;
+    
+    void *ptr = malloc(total_size);
+    if (!ptr) return NULL;
+
+    BinomialTreeForest32 *forest = (BinomialTreeForest32*) ptr;
+    // avanza ptr exactamente sizeof(BinomialTreeForest32) bytes
+    uint32_t *data = (uint32_t*)((char*)ptr + sizeof(BinomialTreeForest32));
+
+    // inicializar campos numéricos
+    forest->nodeCount = N;
+    forest->rootCount = 0;
+    forest->minNode = FREE;
+
+    //inicializar punteros
+    // debe mover el puntero data
+    // para asignar correctamente cada campo
+    // parents
+    forest->parents = data;
+    data += N;
+    //roots
+    forest->roots = data;
+    data += 32;
+    //children
+    forest->children = data;
+    data += N * 32; // recordar que esto es N log((uint32_t)(-1))
+    // deg
+    forest->deg = data;
+    
+    return initBinomialQueue32(N, values, forest);
+}
+
+/**
 * @macro STACK_FIBO_QUEUE
 * @brief Instancia e inicializa una Cola de Fibonacci utilizando memoria de *stack*.
 *
@@ -316,3 +365,54 @@ void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, 
         .children = (uint32_t[N*32]), \
         .deg = (uint32_t[N]) \
     })
+
+/**
+* @brief Instancia e inicializa una Cola de Fibonacci utilizando memoria de heap.
+* 
+* @note El arreglo de raíces reserva espacio para N elementos, ya que una cola de fibonacci
+* tiene permitido insertar elementos sin mantener la estructura de bosque binomial
+* 
+* @note Se debe liberar la memoria prestada con free
+* 
+* @param N número de nodos (@c nodeCount)
+* @param values puntero al arreglo de valores (@c nodeValues)
+* @return Puntero a una estructura @c BinomialTreeForest32 que vive en el heap.
+*/
+static inline BinomialTreeForest32* HEAP_FIBO_QUEUE(uint32_t N, double* values) {
+    
+    size_t total_elements = 
+        N    + // arreglo parents
+        N    + //arreglo roots
+        N*32 + //arreglo children
+        N;     //arreglo deg
+    size_t total_size = sizeof(BinomialTreeForest32) + total_elements;
+    
+    void *ptr = malloc(total_size);
+    if (!ptr) return NULL;
+
+    BinomialTreeForest32 *forest = (BinomialTreeForest32*) ptr;
+    // avanza ptr exactamente sizeof(BinomialTreeForest32) bytes
+    uint32_t *data = (uint32_t*)((char*)ptr + sizeof(BinomialTreeForest32));
+
+    // inicializar campos numéricos
+    forest->nodeCount = N;
+    forest->rootCount = 0;
+    forest->minNode = FREE;
+
+    //inicializar punteros
+    // debe mover el puntero data
+    // para asignar correctamente cada campo
+    // parents
+    forest->parents = data;
+    data += N;
+    //roots
+    forest->roots = data;
+    data += N;
+    //children
+    forest->children = data;
+    data += N * 32; // recordar que esto es N log((uint32_t)(-1))
+    // deg
+    forest->deg = data;
+    
+    return initFiboQueue32(N, values, forest);
+}
