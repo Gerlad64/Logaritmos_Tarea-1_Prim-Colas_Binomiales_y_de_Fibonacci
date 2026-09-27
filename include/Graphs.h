@@ -187,7 +187,12 @@ static inline void addChildren(BinomialTreeForest32* dest, uint32_t p, uint32_t 
 }
 
 /**
- *@brief *Acarrea* el nodo @p carryNode de grado @p degree (es decir, cuantos hijos tiene) sobre la estructura @p dest 
+ * @brief *Acarrea* el nodo @p carryNode de grado @p degree (es decir, cuantos hijos tiene) sobre la estructura @p dest 
+ * 
+ * @param dest Estructura de destino que será modificada
+ * @param nodeValues Arreglo de valores que será consultado para comparar valores y hacer carry
+ * @param carryNode Nodo que será *acarreado* en la estructura
+ * @param degree Grado del nodo a *acarrear*
  */
 void carry(BinomialTreeForest32* dest, const double* nodeValues, uint32_t carryNode, uint32_t degree);
 
