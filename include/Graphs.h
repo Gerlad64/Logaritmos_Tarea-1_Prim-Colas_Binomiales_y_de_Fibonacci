@@ -102,7 +102,8 @@ typedef struct {
  * @struct BinomialTreeForest32
  * @brief Bosque de Arboles Binomiales representada mediante arreglos.
  *
- * Almacena la topología de un bosque de arboles binomiales mediante un arreglo de padres y un arreglo de las raíces.
+ * Almacena la topología de un bosque de arboles binomiales mediante un arreglo de padres, un arreglo de las raíces
+ * un arreglo de hijos de cada nodo, y un arreglo del grado de cada arbol.
  * No almacena los valores de los nodos.
  *
  * @details
@@ -124,6 +125,23 @@ typedef struct {
  * roots[0 ... rootCount]
  * @endcode
  *
+ * El arreglo @c children ocupa un espacio constante de 32 bits por cada nodo, que
+ * representa la cantidad máxima de hijos que puede tener un nodo en un sistema de nodos
+ * de máximo 32 bits. Entonces, el arreglo children toma N * 32 en memoria, y los arreglos
+ * de hijos se encuentran separados con un *stride* constante.
+ * 
+ * La cantidad de hijos de un nodo está dada por su grado, almacenado en el arreglo @p deg.
+ * 
+ * Los hijos de un nodo @c u se obtiene consultando el arreglo @p children y el arreglo @p deg:
+ * @code
+ * uint64_t firstChild = (uint64_t)u * 32;
+ * uint64_t lastChild  = firstChild + bintreeforest.deg[u];
+ * /// hijos del nodo u
+ * children[firstChild ... lastChild]
+ * @endcode
+ * 
+ * El índice del nodo con el valor mínimo  es almacenado en @p minNode
+ * 
  * @note
  * El orden y distribución de las raíces en el arreglo de raíces depende de cada uso
  */
@@ -132,15 +150,17 @@ typedef struct {
     uint32_t nodeCount;
     /** Número total de raíces en el bosque. */
     uint32_t rootCount;
-    /** */
+    /** Índice del nodo con el valor mínimo */
     uint32_t minNode;
     /** Arreglo de tamaño @p nodeCount que asigna el índice de un nodo con su padre. */
     uint32_t* parents;
     /** Arreglo que contiene los índices que son raíces. */
     uint32_t* roots;
-    /** */
+    /** Arreglo de tamaño @p nodeCount*32 que almacena los índices de los hijos de cada nodo
+        con *stride* constante de 32.
+    */
     uint32_t* children;
-    /** */
+    /** Arreglo que contiene el grado de cada arbol almacenado */
     uint32_t* deg;
 } BinomialTreeForest32;
 
