@@ -168,6 +168,17 @@ constexpr uint32_t ROOT = (uint32_t)(-1);
 constexpr uint32_t FREE = (uint32_t)(-1);
 constexpr uint32_t NO_CHILD = (uint32_t)(-1);
 
+/**
+ * @brief Añade a @p p un hijo @p c en la estructura @p dest
+ * 
+ * @details
+ * Modifica adecuadamente la estructura @p dest para que @p p aumento su grado en 1,
+ * tenga a @p c en su lista de hijos y @p c tenga a @p p en la lista de @c parents
+ * 
+ * @param dest Estructura de destino a ser modificada
+ * @param p Nodo que será padre (parent)
+ * @param c Nodo que será hijo  (child)
+ */
 static inline void addChildren(BinomialTreeForest32* dest, uint32_t p, uint32_t c) {
     uint64_t childIndex = (uint64_t)p * 32 + dest->deg[p];
     dest->children[childIndex] = c;
