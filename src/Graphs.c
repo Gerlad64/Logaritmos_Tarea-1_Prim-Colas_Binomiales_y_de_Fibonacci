@@ -113,11 +113,13 @@ void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t
 
     while( y != ROOT && values[x] < values[y] ) {
         // values[node] <-> values[nodeDown]
+        /* 
         temp = values[y];
         values[y] = values[x];
         values[x] = temp;
-
-        x = y;
+        */
+        swapParentWithChild(dest, y, x);
+        //x = y;
         y = dest->parents[x];
     }
     if( values[x] < values[dest->minNode]) {
