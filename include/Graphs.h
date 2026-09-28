@@ -140,6 +140,19 @@ static inline void addChildren(BinomialTreeForest32* dest, uint32_t p, uint32_t 
     dest->deg[p] += 1;
 }
 
+/**
+ * @brief Intercambia de lugar un nodo padre @p p con uno de sus nodos hijos @p c y propaga los cambios
+ * en la estructura @p dest
+ * 
+ * @details
+ * El intercambio entre @p p y @p c se realiza:
+ * 1. Intercambiando a sus hijos
+ * 2. Invirtiendo la relación parent child entre @p y @c, es decir, @p c tiene a @p p en su lista de
+ *    hijos y @p p tiene a @p c como padre.
+ * 3. Actualizar al abuelo original de @p c, quien ahora es su padre, y @c gp ahora tiene a @p c en
+ *    su lista de hijos
+ * 
+ */
 static inline void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, uint32_t c) {
     // intercambiar de lugar p y c
     uint32_t gp = dest->parents[p]; // grandparent
