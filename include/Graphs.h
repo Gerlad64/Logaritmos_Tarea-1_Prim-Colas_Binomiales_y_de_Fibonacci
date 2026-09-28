@@ -323,12 +323,12 @@ void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, 
  * @return Puntero a una estructura @c BinomialTreeForest32 que vive en el heap.
  */
 static inline BinomialTreeForest32* HEAP_BINOMIAL_QUEUE(uint32_t N, double* values) {
-    size_t total_elements = 
-        N    + // arreglo parents
-        32   + //arreglo roots
-        N*32 + //arreglo children
-        N;     //arreglo deg
-    size_t total_size = sizeof(BinomialTreeForest32) + total_elements;
+    size_t plen = N;            // arreglo parents
+    size_t rlen = 32;           // arreglo roots
+    size_t clen = (size_t)N*32; // arreglo children
+    size_t dlen = N;            // arreglo deg
+    size_t total_elements = plen + rlen + clen + dlen;
+    size_t total_size = sizeof(BinomialTreeForest32) + sizeof(uint32_t) * total_elements;
     
     void *ptr = malloc(total_size);
     if (!ptr) return NULL;
@@ -347,13 +347,13 @@ static inline BinomialTreeForest32* HEAP_BINOMIAL_QUEUE(uint32_t N, double* valu
     // para asignar correctamente cada campo
     // parents
     forest->parents = data;
-    data += N;
+    data += plen;
     //roots
     forest->roots = data;
-    data += 32;
+    data += rlen;
     //children
     forest->children = data;
-    data += N * 32; // recordar que esto es N log((uint32_t)(-1))
+    data += clen; // recordar que esto es N log((uint32_t)(-1))
     // deg
     forest->deg = data;
     
@@ -396,12 +396,12 @@ static inline BinomialTreeForest32* HEAP_BINOMIAL_QUEUE(uint32_t N, double* valu
 */
 static inline BinomialTreeForest32* HEAP_FIBO_QUEUE(uint32_t N, double* values) {
     
-    size_t total_elements = 
-        N    + // arreglo parents
-        N    + //arreglo roots
-        N*32 + //arreglo children
-        N;     //arreglo deg
-    size_t total_size = sizeof(BinomialTreeForest32) + total_elements;
+    size_t plen = N;            // arreglo parents
+    size_t rlen = N;           // arreglo roots
+    size_t clen = (size_t)N*32; // arreglo children
+    size_t dlen = N;            // arreglo deg
+    size_t total_elements = plen + rlen + clen + dlen;
+    size_t total_size = sizeof(BinomialTreeForest32) + sizeof(uint32_t) * total_elements;
     
     void *ptr = malloc(total_size);
     if (!ptr) return NULL;
@@ -420,13 +420,13 @@ static inline BinomialTreeForest32* HEAP_FIBO_QUEUE(uint32_t N, double* values) 
     // para asignar correctamente cada campo
     // parents
     forest->parents = data;
-    data += N;
+    data += plen;
     //roots
     forest->roots = data;
-    data += N;
+    data += rlen;
     //children
     forest->children = data;
-    data += N * 32; // recordar que esto es N log((uint32_t)(-1))
+    data += clen; // recordar que esto es N log((uint32_t)(-1))
     // deg
     forest->deg = data;
     
