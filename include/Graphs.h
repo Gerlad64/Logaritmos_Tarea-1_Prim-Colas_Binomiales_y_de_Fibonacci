@@ -49,7 +49,7 @@ typedef struct {
     /** Arreglo de tamaño @p nodeCount+1 con los índices para acceder a los vecinos de un nodo */
     uint64_t* offsets;
     /** Pesos de las aristas, en correspondencia 1 a 1 con el arreglo de aristas @p edges */
-    uint64_t* weights;
+    double* weights;
 } WGraph32;
 
 /**
@@ -432,3 +432,12 @@ static inline BinomialTreeForest32* HEAP_FIBO_QUEUE(uint32_t N, double* values) 
     
     return initFiboQueue32(N, values, forest);
 }
+
+typedef struct {
+       uint32_t nodeCount;
+       uint32_t* parent;
+       double *key;
+} MST32;
+
+
+MST32* Prim_Binomial32(const WGraph32* graph, uint32_t src, MST32* dest);
