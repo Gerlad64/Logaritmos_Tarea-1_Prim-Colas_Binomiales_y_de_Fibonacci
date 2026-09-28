@@ -63,6 +63,8 @@ BinomialTreeForest32* initFiboQueue32(uint32_t nodeCount, const double* nodeValu
     for(uint32_t i = 0; i < nodeCount; i++) {
         dest->parents[i] = ROOT;
         dest->roots[i] = i;
+        dest->deg[i] = 0;
+        // TODO inicializar hijos si es que son necesarios
         if( nodeValues[minNode] > nodeValues[i]) minNode = i;
     }
     dest->minNode = minNode;
