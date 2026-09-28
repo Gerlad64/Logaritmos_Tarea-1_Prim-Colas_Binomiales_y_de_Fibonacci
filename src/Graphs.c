@@ -45,6 +45,10 @@ BinomialTreeForest32* initBinomialQueue32(uint32_t nodeCount, const double* node
     dest->rootCount = 32;
     dest->minNode = FREE;
     for(uint32_t i = 0; i < dest->rootCount; i++) dest->roots[i] = FREE;
+    for(uint32_t i = 0; i < nodeCount; i++) {
+        dest->deg[i] = 0;
+        dest->parents[i] = ROOT;
+    }
     
     for(uint32_t i = 0; i < nodeCount; i++) {
         carry(dest, nodeValues, i, 0);
@@ -86,7 +90,10 @@ uint32_t extractMin_Binomial32(BinomialTreeForest32 *dest, const double *values)
     // por lo que quedan raíces por revisar
     for(uint32_t r = maxDeg + 1; r < dest->rootCount; r++) {
         uint32_t currentRoot = dest->roots[r];
-        if(currentRoot != FREE && values[currentRoot] < values[dest->minNode]) {
+        if(currentRoot != FREE && (
+            dest->minNode == FREE ||
+            values[currentRoot] < values[dest->minNode]
+        )) {
            dest->minNode = currentRoot; 
         }
         
