@@ -1,6 +1,7 @@
 
 #include <Graphs.h>
 #include <stdint.h>
+#include <math.h>
 
 
 void carry(BinomialTreeForest32 *dest, const double* nodeValues, uint32_t carryNode, uint32_t degree) {
@@ -125,4 +126,46 @@ void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t
     if( values[x] < values[dest->minNode]) {
         dest->minNode = x;
     }
+}
+
+
+MST32* Prim_Binomial32(const WGraph32* graph, uint32_t src, MST32* dest) {
+    uint32_t n = graph->nodeCount;
+    
+    double* key = &(dest->key[0]);
+    uint32_t* parent = &(dest->parent[0]);
+    uint8_t* inMST = (uint8_t*)calloc(n, sizeof(uint8_t));
+    
+    for(uint32_t v = 0; v < n; v++) {
+        key[v] = INFINITY;
+        parent[v] = ROOT;
+    }
+    key[src] = 0.0;
+
+    BinomialTreeForest32 * q = HEAP_BINOMIAL_QUEUE(n, key);
+
+    for(uint32_t processed = 0; processed < n; processed++) {
+        
+        uint32_t u = extractMin_Binomial32(q, key);
+        if(key[u] == INFINITY && u != src) break;
+        inMST[u] = 1;
+
+        uint64_t start = graph->offsets[u];
+        uint64_t end   = graph->offsets[u+1];
+
+        for(uint64_t i = start; i < end; i++) {
+            uint32_t v = graph->edges[i];
+            double   w = (double)graph->weights[i];
+            if(!inMST[v] && w < key[v]) {
+                key[v] = w;
+                parent[v] = u;
+                decreaseKey_Binomial32(q, key, v, w);
+            }
+        }
+    }
+    free(inMST);
+    free(q);
+    
+    dest->nodeCount = n;
+    return dest;
 }
