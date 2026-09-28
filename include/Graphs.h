@@ -1,53 +1,7 @@
+#pragma once
 
 #include <stdint.h>
-
-/**
- * @brief Grafo no dirigido representado mediante arreglos.
- *
- * Almacena únicamente la topología de adyacencia sin pesos ni valores asociados.
- * Los identificadores de nodos son contiguos en el rango [0, nodeCount - 1].
- *
- * @details
- * Al ser un grafo no dirigido, cada arista {u, v} se almacena dos veces en @p edges:
- * una en la lista de adyacencia de @c u y otra en la de @c v. Por ende, @p edgeCount
- * equivale al doble del número real de aristas no dirigidas.
- *
- * Los vecinos de un nodo @c u se encuentran en:
- * @code
- * uint32_t start = graph->offsets[u];
- * uint32_t end   = (u + 1 < graph->nodeCount) ? graph->offsets[u + 1] : graph->edgeCount;
- * // Vecinos de u: edges[start ... end - 1]
- * // Grado de u:   end - start
- * @endcode
- */
-typedef struct {
-    /**
-     * @brief Número total de nodos en el grafo.
-     * Los índices van desde 0 a nodeCount-1
-     */
-    uint16_t nodeCount;
-    /**
-     * @brief Lista de adyacencia de todos los nodos.
-     * Contiene los identificadores de los nodos vecinos agrupados
-     * por nodo de origen.
-     * Su longitud exacta está dada por @p graph->offsets[node]
-     * @note A priori la lista y los vecinos no siguen ningún orden en especifico.
-     */
-    uint16_t* edges;
-    /**
-        Offsets de aristas. Su tamaño es igual a `nodeCount`,
-        donde el índice i permite acceder a los vecinos del
-        nodo i consultando el arreglo `edges`.
-        Por esto, los offsets **deben estar ordenados por nodo**.
-    */
-    uint32_t* offsets;
-} Graph16;
-
-typedef struct {
-    uint32_t nodeCount;
-    uint32_t* edges;
-    uint64_t* offsets;
-} Graph32;
+#include <stdlib.h>
 
 /**
  * @struct WGraph32
