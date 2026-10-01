@@ -433,11 +433,52 @@ static inline BinomialTreeForest32* HEAP_FIBO_QUEUE(uint32_t N, double* values) 
     return initFiboQueue32(N, values, forest);
 }
 
+/**
+ * @struct MST32
+ * @brief Árbol Covertor Mínimo (MinimumSpanningTree) representado mediante arreglos 
+ * 
+ * @details
+ * Los nodos se identifican con enteros csin signo en el rango [0, nodeCount - 1].
+ * El árbol es representado en la lista @p parent, con la raíz del arbol siendo
+ * el nodo elegido para comenzar el algoritmo de Prim.
+ * 
+ * Si @c v es un nodo del arbol, entonces, 
+ * se consulta por su padre, y el peso de la arista que los une
+ * de esta forma:
+ * @code
+ * uint32_t p = mst->parent[v]; // ROOT si v es la raíz o no fue alcanzado
+ * double   w = mst->key[v]; // peso de la arista {v, p}
+ * @endcode
+ * 
+ * Si el grafo es conexo, el peso total del MST es la suma de @c key[v] para todo @c v
+ * distinto de la raíz.
+ * 
+ */
 typedef struct {
-       uint32_t nodeCount;
-       uint32_t* parent;
-       double *key;
+    /** Número de nodos del MST, el mismo del grafo original si este es conexo */
+    uint32_t nodeCount;
+    /** Arreglo de tamaño @p nodeCount con el padre de cada nodo en el MST, o @c ROOT si no tiene */
+    uint32_t* parent;
+    /**
+     * Arreglo de tamaño @p nodeCount con el peso de la arista que une a cada nodo con su padre.
+     * Durante la ejecución de Prim también actúa como *clave* o prioridad de la cola
+     */
+    double *key;
 } MST32;
 
 
+/**
+ * @brief Calcula un MST del grafo @p graph con el algoritmo de Prim, usando una Cola Binomial
+ * como cola de prioridad.
+ * 
+ * @details
+ * Prim hace crecer el arbol dese @p src, agregando en cada paso al nodo fuera del árbol
+ * con la arista más barata hacia él. Cada nodo tiene una clave @c key[v]: el peso de la
+ * arista más barata conocida que lo conecta con el árbol. La cola binomial almacena todos
+ * los nodos ordenados por esa clave:
+ * - se hace @c extractMin_Binomial32 una vez por nodo,
+ * - se hace @c decreaseKey_Binomial32 cada vez que una arista mejora la clave de un vecino.
+ * 
+ * Complejidad: O(V log V) por las extracciones más la complejidad de decreaseKey,
+ */
 MST32* Prim_Binomial32(const WGraph32* graph, uint32_t src, MST32* dest);
