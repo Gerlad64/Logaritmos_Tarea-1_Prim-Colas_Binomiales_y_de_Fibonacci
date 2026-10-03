@@ -2,6 +2,9 @@
 #include <Graphs.h>
 #include <stdint.h>
 #include <math.h>
+#include <string.h>
+#include <random.h>
+#include <hash32.h>
 
 void insertManyEmpty(uint32_t *restrict u, uint32_t *restrict v, double *weights, uint64_t edgeCount, WGraph32 *dest) {
     uint32_t V = dest->nodeCount;
