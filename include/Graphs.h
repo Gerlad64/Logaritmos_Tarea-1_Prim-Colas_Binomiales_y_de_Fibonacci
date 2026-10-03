@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <hash32.h>
 
 /**
  * @struct WGraph32
