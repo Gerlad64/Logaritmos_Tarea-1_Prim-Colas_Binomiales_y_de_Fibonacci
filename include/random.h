@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include <stdint.h>
 #include <pcg_basic.h>
 
