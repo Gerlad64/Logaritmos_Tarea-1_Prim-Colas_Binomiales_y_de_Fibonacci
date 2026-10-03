@@ -53,6 +53,34 @@ typedef struct {
 } WGraph32;
 
 /**
+ * @brief Inserta aristas en un grafo con memoria ya asignada y cantidad de nodos inicializada, pero sin aristas.
+ */
+void insertManyEmpty(uint32_t *restrict u, uint32_t *restrict v, double *weights, uint64_t edgeCount, WGraph32* dest);
+
+/**
+ * @brief Retorna un puntero con memoria auxiliar requerida por `randomWGraph32` alocada.
+ * @details
+ * Reserva memoria para ser usada en múltiples llamadas a randomWGraph32
+ * 
+ * @param max_j tamaño de j más grande a usar en múltiples llamadas de randomWGraph, 
+ * donde 2^j es la cantidad de aristas
+ * @return Puntero a memoria resevada, NULL si no se pudo reservar la memoria.
+ */
+static inline char* randomWGraph32Pool(uint8_t max_j) {
+   uint64_t edgeCount = (uint64_t)1 << max_j;
+   size_t edgeSize = 2 * edgeCount * sizeof(uint32_t); // se multiplica por 2: nodo origen y nodo destino
+   size_t weightSize = edgeCount * sizeof(double);
+   size_t hashSize = hash_size(edgeCount);
+   size_t poolSize = edgeSize + weightSize + hashSize;
+   return malloc(poolSize);
+}
+/**
+ * @brief Rellena @p dest (con memoria ya alocada para 2^i nodos y 2^j vertices) con un grafo aleatorio,
+ * conexo, simple, y no dirigido.
+ */
+WGraph32* randomWGraph32(uint8_t i, uint8_t j, WGraph32* dest, char* pool);
+
+/**
  * @struct BinomialTreeForest32
  * @brief Bosque de Arboles Binomiales representada mediante arreglos.
  *
