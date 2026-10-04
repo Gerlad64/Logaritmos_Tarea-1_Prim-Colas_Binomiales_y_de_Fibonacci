@@ -110,12 +110,84 @@ uint32_t extractMin_Binomial32(BinomialTreeForest32 *dest, const double *values)
     return minNode;
 }
 
-uint32_t extractMin_Fibo32(BinomialTreeForest32 *dest, const double *values) {
-    // 1. Sacar de la cola al árbol Bk que contiene el mínimo
-    // 2. Eliminar raíz del árbol B_k que contiene el mínimo
-    // 3. agregar los hijos a la lista de la cola original
-    // 4. convertir el bosque de arboles binomiales a un bosque binomial
-    return 0; 
+// Tamaño de la tabla de grados usada al consolidar. Con ids de 32 bits el grado máximo de un
+// árbol de una cola de Fibonacci es log_phi(2^32) ~ 46, así que 64 sobra.
+#define FIBO_MAX_DEGREE 64
+ 
+/**
+ * Inserta la raíz @p w en la tabla de consolidación @p table (table[d] = raíz de grado d o FREE).
+ * Si ya hay una raíz del mismo grado, las enlaza (la mayor pasa a ser hija de la menor) y repite
+ * con el árbol resultante, que tiene un grado más.
+ */
+static inline void fiboLinkInsert(BinomialTreeForest32 *dest, const double *values,
+                                  uint32_t *table, uint32_t w, uint8_t *flags) {
+    // grado actual del árbol cuya raíz es w
+    uint32_t d = dest->deg[w];
+    // mientras exista otra raíz del mismo grado, hay que enlazar
+    while(table[d] != FREE) {
+        // y es la otra raíz de grado d
+        uint32_t y = table[d];
+        // w debe quedar como la raíz de menor valor (en empate se mantiene w)
+        if(values[y] < values[w]) {
+            uint32_t tmp = w;
+            w = y;
+            y = tmp;
+        }
+        // y pasa a ser hijo de w: parents[y] = w, children de w += y, deg[w]++
+        addChildren(dest, w, y);
+        // un nodo que pasa a ser hijo queda desmarcado (como en CLRS)
+        flags[y] = 0;
+        // el grado d queda libre: su árbol se acaba de fusionar
+        table[d] = FREE;
+        // el árbol resultante tiene un grado más (deg[w] ya fue incrementado por addChildren)
+        d = dest->deg[w];
+    }
+    // no hay colisión: w ocupa el espacio de su grado
+    table[d] = w;
+}
+ 
+uint32_t extractMin_Fibo32(BinomialTreeForest32 *dest, const double *values, uint8_t *flags) {
+    // 1. nodo mínimo a extraer
+    uint32_t z = dest->minNode;
+ 
+    // 2. tabla de consolidación: table[d] = raíz de grado d (o FREE), inicialmente vacía
+    uint32_t table[FIBO_MAX_DEGREE];
+    for(uint32_t d = 0; d < FIBO_MAX_DEGREE; d++) table[d] = FREE;
+ 
+    // 3. consolidar todas las raíces actuales excepto z (z es el que se extrae)
+    //    roots[0..rootCount-1] es una lista densa; se lee completa antes de reescribirla
+    uint32_t oldRootCount = dest->rootCount;
+    for(uint32_t i = 0; i < oldRootCount; i++) {
+        uint32_t r = dest->roots[i];
+        if(r == z) continue;                         // z sale de la cola
+        fiboLinkInsert(dest, values, table, r, flags);
+    }
+ 
+    // 4. los hijos de z pasan a ser raíces: se consolidan igual que las demás
+    uint64_t childIndex = (uint64_t)z * 32;          // inicio de la lista de hijos de z
+    uint32_t zDeg = dest->deg[z];                    // cantidad de hijos de z
+    for(uint32_t d = 0; d < zDeg; d++) {
+        uint32_t c = dest->children[childIndex + d]; // d-ésimo hijo de z
+        dest->parents[c] = ROOT;                     // ya no tiene padre
+        flags[c] = 0;                                // las raíces quedan desmarcadas
+        fiboLinkInsert(dest, values, table, c, flags);
+    }
+ 
+    // 5. reconstruir la lista de raíces desde la tabla y encontrar el nuevo mínimo
+    dest->rootCount = 0;
+    dest->minNode = FREE;
+    for(uint32_t d = 0; d < FIBO_MAX_DEGREE; d++) {
+        uint32_t r = table[d];
+        if(r == FREE) continue;                      // no hay raíz de este grado
+        dest->roots[dest->rootCount++] = r;          // se agrega a la lista densa de raíces
+        if(dest->minNode == FREE || values[r] < values[dest->minNode])
+            dest->minNode = r;                       // candidato a nuevo mínimo
+    }
+ 
+    // 6. z queda como nodo suelto (sin hijos ni padre) y se retorna
+    dest->deg[z] = 0;
+    dest->parents[z] = ROOT;
+    return z;
 }
 
 void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost) {
@@ -190,6 +262,64 @@ MST32* Prim_Binomial32(const WGraph32* graph, uint32_t src, MST32* dest) {
     free(inMST);
     free(q);
     
+    dest->nodeCount = n;
+    return dest;
+}
+
+
+MST32* Prim_Fibo32(const WGraph32* graph, uint32_t src, MST32* dest) {
+    // cantidad de nodos del grafo
+    uint32_t n = graph->nodeCount;
+ 
+    // claves (key[v] = peso de la arista más barata conocida hacia v) y padres, viven en el MST de salida
+    double* key = &(dest->key[0]);
+    uint32_t* parent = &(dest->parent[0]);
+ 
+    // una sola reserva (en cero) para dos arreglos de n bytes:
+    // inMST[v] = 1 si v ya está en el árbol; flags[v] = marca de la cola de Fibonacci
+    uint8_t* inMST = (uint8_t*)calloc((size_t)n * 2, sizeof(uint8_t));
+    if(!inMST) return NULL;
+    uint8_t* flags = inMST + n;
+ 
+    // inicialmente ningún nodo es alcanzable salvo src
+    for(uint32_t v = 0; v < n; v++) {
+        key[v] = INFINITY;
+        parent[v] = ROOT;
+    }
+    key[src] = 0.0;
+ 
+    // cola de Fibonacci con los n nodos como raíces; minNode queda en src (key 0)
+    BinomialTreeForest32 * q = HEAP_FIBO_QUEUE(n, key);
+    if(!q) { free(inMST); return NULL; }
+ 
+    // se extrae un nodo por iteración
+    for(uint32_t processed = 0; processed < n; processed++) {
+        // nodo fuera del árbol con menor key
+        uint32_t u = extractMin_Fibo32(q, key, flags);
+        // key infinita: el resto no es alcanzable desde src (grafo no conexo)
+        if(key[u] == INFINITY && u != src) break;
+        // u entra al árbol
+        inMST[u] = 1;
+ 
+        // aristas de u en el formato CSR: edges[offsets[u] .. offsets[u+1]-1]
+        uint64_t start = graph->offsets[u];
+        uint64_t end   = graph->offsets[u+1];
+ 
+        for(uint64_t i = start; i < end; i++) {
+            uint32_t v = graph->edges[i];       // vecino
+            double   w = (double)graph->weights[i]; // peso de la arista {u, v}
+            // solo se mejora a vecinos que siguen en la cola y con una arista más barata
+            if(!inMST[v] && w < key[v]) {
+                parent[v] = u;                  // v se conectaría al árbol mediante u
+                // decreaseKey asigna key[v] = w y reordena la cola (corte y corte en cascada)
+                decreaseKey_Fibo32(q, key, v, w, flags);
+            }
+        }
+    }
+    // libera inMST (y flags, que es parte del mismo bloque) y la cola
+    free(inMST);
+    free(q);
+ 
     dest->nodeCount = n;
     return dest;
 }
