@@ -366,8 +366,8 @@ static inline BinomialTreeForest32* HEAP_BINOMIAL_QUEUE(uint32_t N, double* valu
 * @param VALUES puntero al arreglo de valores (@c nodeValues)
 * @return Puntero a una estructura @c BinomialTreeForest32 creada en el stack.
 */
-#define STACK_FIBO_QUEUE(N) \
-    initFiboQueue((N), &BinomialTreeForest32{ \
+#define STACK_FIBO_QUEUE(N, VALUES) \
+    initFiboQueue32((N), (VALUES), &(BinomialTreeForest32){ \
         .nodeCount = (N), \
         .rootCount = (N), \
         .minNode = (FREE), \
