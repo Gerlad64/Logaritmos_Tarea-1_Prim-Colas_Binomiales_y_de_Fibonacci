@@ -49,24 +49,23 @@ WGraph32* randomWGraph32(uint8_t i, uint8_t j, WGraph32 *dest, char* pool) {
     uint64_t nodeCount = (uint64_t)1 << i; // 2^i vertices
     uint64_t edgeCount = (uint64_t)1 << j; // 2^j aristas
 
-    char* ptr = pool;
-    if( ptr == NULL) {
-        ptr = randomWGraph32Pool(j);
-        if( !ptr ) return NULL;
-    }
+    char* ptr = pool ? pool : randomWGraph32Pool(j);
+    if( !ptr ) return NULL;
+    
     /** Alocación de variables auxiliares y tabla hash */
     size_t offset = 0;
     
-    uint32_t* sourceNodes = (uint32_t*)ptr;
+    double* edgeWeights = (double*)(ptr);
+    offset += edgeCount * sizeof(double);
+    
+    EdgeHash* edgeTable = hash_alloc(edgeCount, ptr + offset);
+    offset += hash_size(edgeCount);
+    
+    uint32_t* sourceNodes = (uint32_t*)(ptr + offset);
     offset += edgeCount * sizeof(uint32_t);
     
     uint32_t* targetNodes = (uint32_t*)(ptr + offset);
-    offset += edgeCount * sizeof(uint32_t);
 
-    double* edgeWeights = (double*)(ptr + offset);
-    offset += edgeCount * sizeof(double);
-
-    EdgeHash* edgeTable = hash_alloc(edgeCount, ptr + offset);
 
     /** Arbol Cobertor */
     uint64_t edgesGenerated = 0;
