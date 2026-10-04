@@ -42,7 +42,7 @@ void insertManyEmpty(uint32_t *restrict u, uint32_t *restrict v, double *weights
     dest->offsets[0] = 0;
 }
 
-
+void randomWGraph32Seed(uint64_t seed) { setSeed(seed); }
 
 
 WGraph32* randomWGraph32(uint8_t i, uint8_t j, WGraph32 *dest, char* pool) {

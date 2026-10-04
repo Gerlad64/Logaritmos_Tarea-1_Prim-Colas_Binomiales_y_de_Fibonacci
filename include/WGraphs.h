@@ -113,6 +113,9 @@ static inline char* randomWGraph32Pool(uint8_t max_j) {
    size_t poolSize = edgeSize + weightSize + hashSize;
    return malloc(poolSize);
 }
+
+void randomWGraph32Seed(uint64_t seed);
+
 /**
  * @brief Rellena @p dest (con memoria ya alocada para 2^i nodos y 2^j vertices) con un grafo aleatorio,
  * conexo, simple, y no dirigido.
