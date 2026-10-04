@@ -6,7 +6,7 @@
 #include <random.h>
 #include <hash32.h>
 
-void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, uint32_t c) {
+void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, uint32_t c) { TIME_CALL(SWP);
     // intercambiar de lugar p y c
     uint32_t gp = dest->parents[p]; // grandparent
     uint32_t degP = dest->deg[p];
@@ -84,7 +84,7 @@ void cut(BinomialTreeForest32* dest, uint32_t x, uint32_t y, uint8_t *flags) {
 
 void cascadingCut(BinomialTreeForest32* dest, uint32_t y, uint8_t *flags) {
     uint32_t z = dest->parents[y];
-    while( z != ROOT ) {
+    while( z != ROOT ) { TIME_CALL(CUT);
         if(flags[y] == 0) {
             flags[y] = 1;
             break;
@@ -255,7 +255,7 @@ uint32_t extractMin_Fibo32(BinomialTreeForest32 *dest, const double *values) {
     return z;
 }
 
-void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost) {
+void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost) { TIME_CALL(DKEY_BIN);
     values[x] = cost;
     uint32_t y = dest->parents[x];
     
@@ -277,7 +277,7 @@ void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t
     }
 }
 
-void decreaseKey_Fibo32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost, uint8_t *flags) {
+void decreaseKey_Fibo32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost, uint8_t *flags) { TIME_CALL(DKEY_FIBO);
     values[x] = cost;
     uint32_t y = dest->parents[x];
     if( y != ROOT && values[x] < values[y]) {

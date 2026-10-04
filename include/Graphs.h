@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <WGraphs.h>
+#include <counter.h>
 
 /**
  * @struct BinomialTreeForest32
@@ -396,6 +397,14 @@ static inline MST32* HEAP_MST32(uint32_t nodeCount) {
     m->nodeCount = nodeCount;
 
     return m;
+}
+
+static inline double getWeight(const MST32* mst) {
+   double w = 0.0; 
+   for(uint32_t i = 0; i < mst->nodeCount; i++) {
+       w += mst->key[i];
+   }
+   return w;
 }
 
 /**
