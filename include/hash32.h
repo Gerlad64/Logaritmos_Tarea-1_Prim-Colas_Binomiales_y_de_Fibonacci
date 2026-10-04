@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string.h>
 
 /**
  * @brief: función de hash de 32 bits, donde cada entrada da una salida distinta.
