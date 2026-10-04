@@ -110,6 +110,14 @@ uint32_t extractMin_Binomial32(BinomialTreeForest32 *dest, const double *values)
     return minNode;
 }
 
+uint32_t extractMin_Fibo32(BinomialTreeForest32 *dest, const double *values) {
+    // 1. Sacar de la cola al árbol Bk que contiene el mínimo
+    // 2. Eliminar raíz del árbol B_k que contiene el mínimo
+    // 3. agregar los hijos a la lista de la cola original
+    // 4. convertir el bosque de arboles binomiales a un bosque binomial
+    return 0; 
+}
+
 void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost) {
     values[x] = cost;
     uint32_t y = dest->parents[x];

@@ -154,6 +154,47 @@ static inline void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, u
     }
 }
 
+/** 
+ * @brief Saca a x de la lista de hijos y y decrementar el grado de y, luego
+ * agrega a x a la lista de árboles de Y.
+ * 
+ */
+static inline void cut(BinomialTreeForest32* dest, uint32_t x, uint32_t y, uint8_t *flags) {
+    uint64_t childIndex = (uint64_t)y*32;
+    for( ; y < dest->deg[y]; childIndex++) {
+        if(dest->children[childIndex] == x) {
+           break; 
+        }
+    }
+    if(childIndex == dest->deg[y]) return; // no se encontró x
+    // Se elimina x, y se desplazan los valores hacia la izquierda
+    for( ; childIndex < dest->deg[y]-1; childIndex++) {
+        dest->children[childIndex] = dest->children[childIndex+1];
+    }
+    dest->deg[y]--;
+    
+    // Se coloca x en la raíz
+    dest->parents[x] = ROOT;
+    flags[x] = 0;
+    for(uint64_t i = 0; i < dest->rootCount; i ++) {
+        if(dest->roots[i] == FREE) dest->roots[i] = x;
+    }
+};
+
+static inline void cascadingCut(BinomialTreeForest32* dest, uint32_t y, uint8_t *flags) {
+    uint32_t z = dest->parents[y];
+    while( z != ROOT ) {
+        if(flags[y] == 0)
+            flags[y] = 1;
+        else {
+            cut(dest, y, z, flags);
+            y = z;
+            z = dest->parents[z];
+        }
+    }
+}
+
+
 /**
  * @brief *Acarrea* el nodo @p carryNode de grado @p degree (es decir, cuantos hijos tiene) sobre la estructura @p dest 
  * 
@@ -451,3 +492,11 @@ static inline MST32* HEAP_MST32(uint32_t nodeCount) {
  * Complejidad: O(V log V) por las extracciones más la complejidad de decreaseKey,
  */
 MST32* Prim_Binomial32(const WGraph32* graph, uint32_t src, MST32* dest);
+
+/**
+ * @brief Calcula un MST del grafo @p graph con el algoritmos de Prim, usando una Cola de Fibonacci
+ * como cola de prioridad.
+ * 
+ * @details
+ */
+MST32* Prim_Fibo32(const WGraph32* graph, uint32_t src, MST32* dest);

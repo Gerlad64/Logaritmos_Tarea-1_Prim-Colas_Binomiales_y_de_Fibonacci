@@ -2,7 +2,7 @@
 # compilador
 CC = gcc
 #flags del compilador
-CFLAGS = -I./include -std=c23
+CFLAGS = -I./include -std=c23 -O2
 
 # Definir directorios
 SRC_DIR = src
@@ -31,6 +31,21 @@ TEST_BINS = $(TEST_SOURCES:$(TEST_DIR)/%.c=$(TEST_BIN_DIR)/%)
 # Filtramos main.o de los objetos del proyecto para que no choque con el main de los tests
 # (Asumiendo que tu archivo principal se llama exactamente src/main.c)
 OBJECTS_WITHOUT_MAIN = $(filter-out $(BUILD_DIR)/main.o, $(OBJECTS))
+
+#----- Lógica para make test <nombre>------
+RUN_TEST_BINS = $(TEST_BINS)
+
+# Si el primer argumento es 'test'
+ifeq (test,$(firstword $(MAKECMDGOALS)))
+  # Obtenemos todos los argumentos que le siguen (el o los nombres del test)
+  TEST_ARGS := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  ifneq ($(TEST_ARGS),)
+    # Convertimos cada argumento en una regla vacía silenciosa para engañar a Make
+    $(eval $(TEST_ARGS):;@:)
+    # Construimos la ruta del binario agregando '.test' según tu formato <nombre>.test.c
+    RUN_TEST_BINS = $(patsubst %,$(TEST_BIN_DIR)/%.test,$(TEST_ARGS))
+  endif
+endif
 
 #-------------
 
@@ -66,10 +81,10 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 # Regla make test: Compila y ejecuta CADA test por separado
 # (cada archivo en tests/ tiene su propio main(), por lo que no
 # se pueden enlazar todos juntos en un solo ejecutable)
-test: $(TEST_BINS)
+test: $(RUN_TEST_BINS)
 	@echo "\033[1;34m--- Ejecutando Tests ---\033[0m"
 	@fail=0; \
-	for t in $(TEST_BINS); do \
+	for t in $(RUN_TEST_BINS); do \
 		echo ">> $$t"; \
 		./$$t || fail=1; \
 		echo; \
@@ -104,11 +119,12 @@ help:
 	@echo "Uso: make [objetivo]"
 	@echo
 	@echo "Objetivos"
-	@echo "    all  	Muestra este mensaje"
-	@echo "    run  	Compila el proyecto y lo ejecuta"
-	@echo "    test  	Compila y ejecuta los tests"
-	@echo "    clean 	Elimina archivos generados"
-	@echo "    help 	Muestra este mensaje"
+	@echo "    all  	    Muestra este mensaje"
+	@echo "    run  	    Compila el proyecto y lo ejecuta"
+	@echo "    test  	    Compila y ejecuta los tests"
+	@echo "    test <name>  Compila y ejecuta un test especifico (ej. tests/<name>.test.c"
+	@echo "    clean 	    Elimina archivos generados"
+	@echo "    help 	    Muestra este mensaje"
 
 KNOWN_COMMANDS = all build run clean help
 
