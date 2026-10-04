@@ -121,3 +121,30 @@ void randomWGraph32Seed(uint64_t seed);
  * conexo, simple, y no dirigido.
  */
 WGraph32* randomWGraph32(uint8_t i, uint8_t j, WGraph32* dest, char* pool);
+
+/** @return 1 si todos los nodos son alcanzables desde el nodo 0, 0 si no. */
+static int isConnected(const WGraph32* graph) {
+    if(!graph) return 0;
+    
+    uint32_t nodeCount = graph->nodeCount;
+    uint32_t* pendingNodes = (uint32_t*)malloc(nodeCount * sizeof(uint32_t));   /* pila del DFS */
+    uint8_t*  visited      = (uint8_t*) calloc(nodeCount, sizeof(uint8_t));
+    uint64_t  pendingCount = 0;
+    uint32_t  reachedCount = 1;
+
+    pendingNodes[pendingCount++] = 0;
+    visited[0] = 1;
+    while (pendingCount > 0) {
+        uint32_t node = pendingNodes[--pendingCount];
+        for (uint64_t pos = graph->offsets[node]; pos < graph->offsets[node + 1]; pos++) {
+            uint32_t neighbor = graph->edges[pos];
+            if (!visited[neighbor]) {
+                visited[neighbor] = 1;
+                reachedCount++;
+                pendingNodes[pendingCount++] = neighbor;
+            }
+        }
+    }
+    free(pendingNodes); free(visited);
+    return reachedCount == nodeCount;
+}
