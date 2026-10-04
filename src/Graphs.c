@@ -142,10 +142,13 @@ void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t
 
 void decreaseKey_Fibo32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost, uint8_t *flags) {
     values[x] = cost;
-    uint64_t y = dest->parents[x];
+    uint32_t y = dest->parents[x];
     if( y != ROOT && values[x] < values[y]) {
         cut(dest, x, y, flags);
         cascadingCut(dest, y, flags);
+    }
+    if( dest->minNode == FREE || values[x] < values[dest->minNode]) {
+        dest->minNode = x;
     }
 }
 

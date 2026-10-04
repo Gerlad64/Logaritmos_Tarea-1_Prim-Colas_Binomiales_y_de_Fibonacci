@@ -161,31 +161,33 @@ static inline void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, u
  */
 static inline void cut(BinomialTreeForest32* dest, uint32_t x, uint32_t y, uint8_t *flags) {
     uint64_t childIndex = (uint64_t)y*32;
-    for( ; y < dest->deg[y]; childIndex++) {
-        if(dest->children[childIndex] == x) {
-           break; 
-        }
-    }
-    if(childIndex == dest->deg[y]) return; // no se encontró x
-    // Se elimina x, y se desplazan los valores hacia la izquierda
-    for( ; childIndex < dest->deg[y]-1; childIndex++) {
-        dest->children[childIndex] = dest->children[childIndex+1];
-    }
+    uint64_t last = dest->deg[y];
+    // buscar a x dentro de los hijos de y
+    while(childIndex < last && dest->children[childIndex] != x) childIndex++;
+    // no se encontró x
+    if(childIndex == last) return; 
+     
+    // Se elimina x
+    dest->children[childIndex] = dest->children[last-1];
     dest->deg[y]--;
     
     // Se coloca x en la raíz
     dest->parents[x] = ROOT;
+    // se desmarca x al estar recién cortado
     flags[x] = 0;
-    for(uint64_t i = 0; i < dest->rootCount; i ++) {
-        if(dest->roots[i] == FREE) dest->roots[i] = x;
-    }
+    // se coloca en la última raíz, 
+    // suponiendo que queda espacio, ya que se llama
+    // después de extractMin
+    dest->roots[dest->rootCount++] = x;
 };
 
 static inline void cascadingCut(BinomialTreeForest32* dest, uint32_t y, uint8_t *flags) {
     uint32_t z = dest->parents[y];
     while( z != ROOT ) {
-        if(flags[y] == 0)
+        if(flags[y] == 0) {
             flags[y] = 1;
+            break;
+        }
         else {
             cut(dest, y, z, flags);
             y = z;
