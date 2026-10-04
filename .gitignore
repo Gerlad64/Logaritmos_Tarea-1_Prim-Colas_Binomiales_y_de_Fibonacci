@@ -69,11 +69,15 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+.venv/
+results/
 
 #---IDE Garbage
 .vscode/
 .idea/
 *.swp
+
+.clangd
 
 #--- OS Garbage
 .DS_Store
