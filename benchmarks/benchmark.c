@@ -331,22 +331,96 @@ static void print_report(int target, const char* flags, const char* compilador, 
     print_results_table(A, B, C, D, 5);
 }
 
-/* Ejecuta print_report con stdout redirigido al archivo: el .txt queda identico a la pantalla. */
-static int save_report_txt(const char* path, int target, const char* flags, const char* compilador,
-                           const SysInfo* si, const BenchmarkResults* A, const BenchmarkResults* B,
+/* ---- Recuadro del .txt: permite acumular reportes con `cat a.txt b.txt ...` ---- */
+
+/* Largo visible de una cadena UTF-8 (cuenta caracteres, no bytes). */
+static size_t utf8_len(const char* s) {
+    size_t n = 0;
+    for (; *s; s++) if (((unsigned char)*s & 0xC0) != 0x80) n++;
+    return n;
+}
+
+static void strip_eol(char* s) {
+    size_t n = strlen(s);
+    while (n > 0 && (s[n-1] == '\n' || s[n-1] == '\r')) s[--n] = '\0';
+}
+
+/* Recuadro: esquinas '+', horizontales '=', verticales '||'. Ancho total = inner + 6. */
+static void frame_rule(FILE* f, size_t inner) {
+    fputc('+', f);
+    for (size_t k = 0; k < inner + 4; k++) fputc('=', f);
+    fputs("+\n", f);
+}
+
+static void frame_line(FILE* f, const char* s, size_t inner) {
+    fprintf(f, "|| %s", s);
+    for (size_t k = utf8_len(s); k < inner; k++) fputc(' ', f);
+    fputs(" ||\n", f);
+}
+
+/*
+ * Ejecuta print_report con stdout redirigido a un archivo temporal y luego lo vuelca a `path`
+ * dentro de un recuadro (+, =, ||) con un titulo (tag + fecha). El contenido es el mismo que se ve
+ * en pantalla; cada reporte termina con una linea en blanco, asi que
+ *     cat benchmark1.txt benchmark2.txt > todos.txt
+ * deja los recuadros uno debajo del otro.
+ */
+static int save_report_txt(const char* path, const char* tag, int target, const char* flags,
+                           const char* compilador, const SysInfo* si,
+                           const BenchmarkResults* A, const BenchmarkResults* B,
                            const BenchmarkResults* C, const BenchmarkResults* D) {
-    FILE* f = fopen(path, "w");
-    if (!f) return 0;
+    char tmp_path[400];
+    snprintf(tmp_path, sizeof tmp_path, "%s.tmp", path);
+    FILE* tmp = fopen(tmp_path, "w+b");
+    if (!tmp) return 0;
+
+    /* 1) Reporte -> archivo temporal (stdout redirigido) */
     fflush(stdout);
     int saved = DUP(FILENO(stdout));
-    if (saved < 0) { fclose(f); return 0; }
-    DUP2(FILENO(f), FILENO(stdout));
+    if (saved < 0) { fclose(tmp); remove(tmp_path); return 0; }
+    DUP2(FILENO(tmp), FILENO(stdout));
     print_report(target, flags, compilador, si, A, B, C, D);
     fflush(stdout);
     DUP2(saved, FILENO(stdout));
     CLOSE(saved);
-    fclose(f);
-    return 1;
+
+    /* 2) Titulo y ancho del recuadro */
+    char stamp[32] = "";
+    time_t now = time(NULL);
+    struct tm* lt = localtime(&now);
+    if (lt) strftime(stamp, sizeof stamp, "%Y-%m-%d %H:%M", lt);
+
+    char title[512];
+    snprintf(title, sizeof title, "BENCHMARK  %s  (%s)", tag, stamp);
+
+    char line[4096];
+    size_t inner = utf8_len(title);
+    rewind(tmp);
+    while (fgets(line, sizeof line, tmp)) {
+        strip_eol(line);
+        size_t w = utf8_len(line);
+        if (w > inner) inner = w;
+    }
+
+    /* 3) Volcado enmarcado al .txt final */
+    FILE* out = fopen(path, "w");
+    if (!out) { fclose(tmp); remove(tmp_path); return 0; }
+    frame_rule(out, inner);
+    frame_line(out, title, inner);
+    frame_rule(out, inner);
+    rewind(tmp);
+    while (fgets(line, sizeof line, tmp)) {
+        strip_eol(line);
+        frame_line(out, line, inner);
+    }
+    frame_rule(out, inner);
+    fputc('\n', out);   /* separador entre reportes al hacer cat */
+
+    int ok = (fflush(out) == 0) && !ferror(out);
+    fclose(out);
+    fclose(tmp);
+    remove(tmp_path);
+    return ok;
 }
 
 int main(int argc, char* argv[]) {
@@ -419,7 +493,7 @@ int main(int argc, char* argv[]) {
     print_report(target, flags_usadas, version_compilador, &si, Ar, Br, Cr, Dr);
 
     if (can_save) {
-        if (save_report_txt(path_txt, target, flags_usadas, version_compilador, &si, Ar, Br, Cr, Dr))
+        if (save_report_txt(path_txt, tag, target, flags_usadas, version_compilador, &si, Ar, Br, Cr, Dr))
             printf("\nResultados guardados en:\n  %s\n  %s\n", path_npy, path_txt);
         else
             fprintf(stderr, "Aviso: no se pudo escribir %s\n", path_txt);
