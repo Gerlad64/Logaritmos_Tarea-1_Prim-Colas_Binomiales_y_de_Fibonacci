@@ -53,6 +53,44 @@ typedef struct {
     double* weights;
 } WGraph32;
 
+
+#define STACK_WGRAPH32(N, E) \
+    { \
+        .nodeCount = (N), \
+        .edges = (uint32_t[2*(E)]){0}, \
+        .offsets = (uint64_t[(N)+1]){0}, \
+        .weights = (double[2*(E)]){0} \
+    }
+
+static inline WGraph32* HEAP_WGRAPH32(uint32_t n, uint32_t e) {
+    size_t off_size = ((size_t)n + 1) * sizeof(uint64_t);
+    size_t w_size = (size_t)e * 2 * sizeof(double);
+    size_t e_size = (size_t)e * 2 * sizeof(uint32_t);
+    size_t total_size = sizeof(WGraph32) + off_size + w_size + e_size;
+
+    void *ptr = calloc(1, total_size);
+    if (!ptr) return NULL;
+
+    WGraph32 *graph = (WGraph32*)ptr;
+    char *data = (char*)ptr + sizeof(WGraph32);
+
+    graph->offsets =(uint64_t*)data;
+    data+= off_size;
+
+    graph->weights = (double*)data;
+    data+= w_size;
+
+    graph->edges = (uint32_t*)data;
+    graph->nodeCount = n;
+
+    return graph;
+}
+
+static inline WGraph32* HEAP_WGRAPH32_IJ(uint8_t i, uint8_t j) {
+    if (i > 31 || j > 58) return NULL;
+    return HEAP_WGRAPH32((uint32_t)1 << i, (uint32_t)1 << j);
+}
+
 /**
  * @brief Inserta aristas en un grafo con memoria ya asignada y cantidad de nodos inicializada, pero sin aristas.
  */
