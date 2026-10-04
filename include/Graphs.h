@@ -280,7 +280,7 @@ void decreaseKey_Binomial32(BinomialTreeForest32* dest, double* values, uint32_t
  * @param node Identificador del nodo que decrementará su costo
  * @param cost Nuevo costo del nodo
  */
-void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, double cost);
+void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, double cost, uint8_t *flags);
 
 /**
  * @macro STACK_BINOMIAL_QUEUE

@@ -140,6 +140,15 @@ void decreaseKey_Binomial32(BinomialTreeForest32 *dest, double *values, uint32_t
     }
 }
 
+void decreaseKey_Fibo32(BinomialTreeForest32 *dest, double *values, uint32_t x, double cost, uint8_t *flags) {
+    values[x] = cost;
+    uint64_t y = dest->parents[x];
+    if( y != ROOT && values[x] < values[y]) {
+        cut(dest, x, y, flags);
+        cascadingCut(dest, y, flags);
+    }
+}
+
 
 MST32* Prim_Binomial32(const WGraph32* graph, uint32_t src, MST32* dest) {
     uint32_t n = graph->nodeCount;
