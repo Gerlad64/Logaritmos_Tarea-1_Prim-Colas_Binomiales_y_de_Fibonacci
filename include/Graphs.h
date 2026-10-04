@@ -418,6 +418,23 @@ typedef struct {
     double *key;
 } MST32;
 
+static inline MST32* HEAP_MST32(uint32_t nodeCount) {
+    size_t p_size = nodeCount * sizeof(uint32_t);
+    size_t k_size = nodeCount * sizeof(double);
+    
+    void* ptr = malloc(sizeof(MST32) + p_size + k_size);
+    if (!ptr) return NULL;
+    
+    MST32* m = (MST32*)ptr;
+    char* data = (char*)ptr + sizeof(MST32);
+
+    m->key = (double*)data;
+    data += k_size;
+    m->parent = (uint32_t*)data;
+    m->nodeCount = nodeCount;
+
+    return m;
+}
 
 /**
  * @brief Calcula un MST del grafo @p graph con el algoritmo de Prim, usando una Cola Binomial
