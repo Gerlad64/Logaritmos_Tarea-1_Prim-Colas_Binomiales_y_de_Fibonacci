@@ -161,7 +161,7 @@ static inline void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, u
  */
 static inline void cut(BinomialTreeForest32* dest, uint32_t x, uint32_t y, uint8_t *flags) {
     uint64_t childIndex = (uint64_t)y*32;
-    uint64_t last = dest->deg[y];
+    uint64_t last = childIndex + dest->deg[y];
     // buscar a x dentro de los hijos de y
     while(childIndex < last && dest->children[childIndex] != x) childIndex++;
     // no se encontró x
