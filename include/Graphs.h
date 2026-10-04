@@ -105,97 +105,16 @@ static inline void addChildren(BinomialTreeForest32* dest, uint32_t p, uint32_t 
  *    su lista de hijos
  * 
  */
-static inline void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, uint32_t c) {
-    // intercambiar de lugar p y c
-    uint32_t gp = dest->parents[p]; // grandparent
-    uint32_t degP = dest->deg[p];
-    uint32_t degC = dest->deg[c];
-    // c es de menor grado
-    // índice hijos de c
-    uint64_t cindex = (uint64_t)c * 32;
-    // índice hijos de p
-    uint64_t pindex = (uint64_t)p * 32;
-
-    // guardar copias de los hijos de c y de p
-    uint32_t oldP[32], oldC[32];
-    for(uint32_t d = 0; d < degP; d++) oldP[d] = dest->children[pindex + d];
-    for(uint32_t d = 0; d < degC; d++) oldC[d] = dest->children[cindex + d];
-
-    // actualizar hijos de c con los hijos de p
-    for(uint32_t d = 0; d < degP; d++) {
-        uint32_t child = oldP[d];
-        dest->children[cindex + d] = child;
-        dest->parents[child] = c;
-    }
-    // ahora p es hijo de c
-    dest->children[cindex + degC] = p;
-     
-    // actualizar hijos de p con los hijos de c
-    for(uint32_t d = 0; d < degC; d++) {
-        uint32_t child = oldC[d];
-        dest->children[pindex + d] = child;
-        dest->parents[child] = p;
-    }
-    // actualizar grados (swap)
-    dest->deg[c] = degP;
-    dest->deg[p] = degC;
-
-    dest->parents[p] = c;
-    dest->parents[c] = gp;
-
-    // actualizar al abuelo
-    if(gp == ROOT) {
-        dest->roots[degP] = c;
-    }
-    else {
-        uint64_t gpindex = (uint64_t)gp * 32;
-        //uint32_t gpDeg = dest->deg[gp];
-        dest->children[gpindex + degP] = c;
-    }
-}
+void swapParentWithChild(BinomialTreeForest32* dest, uint32_t p, uint32_t c);
 
 /** 
  * @brief Saca a x de la lista de hijos y y decrementar el grado de y, luego
  * agrega a x a la lista de árboles de Y.
  * 
  */
-static inline void cut(BinomialTreeForest32* dest, uint32_t x, uint32_t y, uint8_t *flags) {
-    uint64_t childIndex = (uint64_t)y*32;
-    uint64_t last = childIndex + dest->deg[y];
-    // buscar a x dentro de los hijos de y
-    while(childIndex < last && dest->children[childIndex] != x) childIndex++;
-    // no se encontró x
-    if(childIndex == last) return; 
-     
-    // Se elimina x
-    dest->children[childIndex] = dest->children[last-1];
-    dest->deg[y]--;
-    
-    // Se coloca x en la raíz
-    dest->parents[x] = ROOT;
-    // se desmarca x al estar recién cortado
-    flags[x] = 0;
-    // se coloca en la última raíz, 
-    // suponiendo que queda espacio, ya que se llama
-    // después de extractMin
-    dest->roots[dest->rootCount++] = x;
-};
+void cut(BinomialTreeForest32* dest, uint32_t x, uint32_t y, uint8_t *flags);
 
-static inline void cascadingCut(BinomialTreeForest32* dest, uint32_t y, uint8_t *flags) {
-    uint32_t z = dest->parents[y];
-    while( z != ROOT ) {
-        if(flags[y] == 0) {
-            flags[y] = 1;
-            break;
-        }
-        else {
-            cut(dest, y, z, flags);
-            y = z;
-            z = dest->parents[z];
-        }
-    }
-}
-
+void cascadingCut(BinomialTreeForest32* dest, uint32_t y, uint8_t *flags);
 
 /**
  * @brief *Acarrea* el nodo @p carryNode de grado @p degree (es decir, cuantos hijos tiene) sobre la estructura @p dest 
