@@ -1,4 +1,8 @@
-
+/**
+ * TEST DE INTEGRIDAD DE WGraphs.
+ * VERIFICA LA INTEGRIDAD DE LOS WGraphs PERO
+ * EL PRINCIPAL OBJETIVO ES VERIFICAR LOS GRAFOS ALEATORIOS.
+ */
 
 #include <WGraphs.h>
 #include <stdint.h>
