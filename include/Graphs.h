@@ -257,10 +257,10 @@ void decreaseKey_Fibo32(BinomialTreeForest32* dest, double* values, uint32_t x, 
         .nodeCount = (N), \
         .rootCount = (0), \
         .minNode = (FREE), \
-        .parents = (uint32_t[N]), \
-        .roots  = (uint32_t[32]), \
-        .children = (uint32_t[N*32]), \
-        .deg = (uint32_t[N]) \
+        .parents = (uint32_t[(N)]){0}, \
+        .roots  = (uint32_t[32]){0}, \
+        .children = (uint32_t[(size_t)(N)*32]){0}, \
+        .deg = (uint32_t[(N)]){0} \
     })
 
 /**
@@ -328,10 +328,10 @@ static inline BinomialTreeForest32* HEAP_BINOMIAL_QUEUE(uint32_t N, double* valu
         .nodeCount = (N), \
         .rootCount = (N), \
         .minNode = (FREE), \
-        .parents = (uint32_t[N]), \
-        .roots = (uint32_t[N]), \
-        .children = (uint32_t[N*32]), \
-        .deg = (uint32_t[N]) \
+        .parents = (uint32_t[(N)]){0}, \
+        .roots = (uint32_t[(N)]){0}, \
+        .children = (uint32_t[(size_t)(N)*32]){0}, \
+        .deg = (uint32_t[(N)]){0} \
     })
 
 /**
