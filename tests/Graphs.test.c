@@ -4,9 +4,35 @@
 #include <math.h>
 #include <assert.h>
 
+WGraph32 graph5, graph10, graph15;
+
+uint32_t edges5[10] = {
+    1, 2, 3, 4, // nodo 0 
+    0, 2,       // nodo 1
+    0, 1,       // nodo 2
+    0,          // nodo 3
+    0           // nodo 4
+};
+
+uint64_t offsets5[6] = {
+    0,
+    4,
+    6,
+    8,
+    9,
+    10
+};
+
+double weights5[10] = {
+    0.15, 0.25, 0.35, 0.45,
+    0.15, 0.55,
+    0.25, 0.55,
+    0.35,
+    0.45
+};
+
 /** Grafo basic-graph.jpg */
-WGraph32 graph;
-uint32_t edges[18] = {
+uint32_t edges10[18] = {
     1, 2,    // nodo 0
     0, 4,    // nodo 1
     0, 3, 6, // nodo 2
@@ -18,7 +44,7 @@ uint32_t edges[18] = {
     5,       // nodo 8
     5        // nodo 9
 };
-uint64_t offsets[11] = {
+uint64_t offsets10[11] = {
     0,
     2,
     4,
@@ -31,7 +57,7 @@ uint64_t offsets[11] = {
     17,
     18
 };
-double weights[18] = {
+double weights10[18] = {
     0.1, 0.2,
     0.1, 0.3,
     0.2, 0.4, 0.5,
@@ -44,12 +70,81 @@ double weights[18] = {
     0.8,
 };
 
+uint32_t edges15[34] = {
+    1, 2,       // nodo 0
+    0, 3, 4,    // nodo 1
+    0, 5, 6,    // nodo 2
+    1, 7, 8,    // nodo 3
+    1, 9, 10,   // nodo 4
+    2, 11, 12,  // nodo 5
+    2, 13, 14,  // nodo 6
+    3, 14,      // nodo 7
+    3, 9,       // nodo 8
+    4, 8,       // nodo 9
+    4, 11,      // nodo 10
+    5, 10,      // nodo 11
+    5,          // nodo 12
+    6,          // nodo 13
+    6, 7        // nodo 14
+};
+
+uint64_t offsets15[16] = {
+    0,
+    2,
+    5,
+    8,
+    11,
+    14,
+    17,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    31,
+    32,
+    34
+};
+
+double weights15[34] = {
+    0.11, 0.12,             // nodo 0
+    0.11, 0.13, 0.14,       // nodo 1
+    0.12, 0.25, 0.26,       // nodo 2
+    0.13, 0.37, 0.38,       // nodo 3
+    0.14, 0.49, 0.41,       // nodo 4
+    0.25, 0.51, 0.52,       // nodo 5
+    0.26, 0.63, 0.64,       // nodo 6
+    0.37, 0.74,             // nodo 7
+    0.38, 0.89,             // nodo 8
+    0.49, 0.89,             // nodo 9
+    0.41, 0.01,             // nodo 10
+    0.51, 0.01,             // nodo 11
+    0.52,                   // nodo 12
+    0.63,                   // nodo 13
+    0.64, 0.74              // nodo 14
+};
+
+double mst_w5  = 1.2;
+double mst_w10 = 4.5;
+double mst_w15 = 4.46;
+
 
 void init_test_graphs() {
-    graph.nodeCount = 10;
-    graph.edges = edges;
-    graph.offsets = offsets;
-    graph.weights = weights;
+    graph10.nodeCount = 10;
+    graph10.edges = edges10;
+    graph10.offsets = offsets10;
+    graph10.weights = weights10;
+    
+    graph5.nodeCount = 5;
+    graph5.edges = edges5;
+    graph5.offsets = offsets5;
+    graph5.weights = weights5;
+    
+    graph15.nodeCount = 15;
+    graph15.edges = edges15;
+    graph15.offsets = offsets15;
+    graph15.weights = weights15;
 }
 
 static int d_eq(double a, double b) {
@@ -226,27 +321,75 @@ void test_FiboQueue() {
  * El MST del grafo base tiene un peso verificado de 4.5.
  */
 void test_MST() {
+    // -----TEST graph10
+    // 
     // Reservar la estructura en memoria para guardar resultados del árbol
-    MST32* mst_bin = HEAP_MST32(graph.nodeCount);
+    MST32* mst_bin = HEAP_MST32(graph10.nodeCount);
     assert(mst_bin != NULL);
     
-    MST32* res_bin = Prim_Binomial32(&graph, 0, mst_bin);
+    MST32* res_bin = Prim_Binomial32(&graph10, 0, mst_bin);
     assert(res_bin == mst_bin);
     
     // Recuperar el peso acumulado usando la función getWeight
     double w_bin = getWeight(mst_bin);
-    assert(d_eq(w_bin, 4.5));
+    assert(d_eq(w_bin, mst_w10));
     
     // Repetir el proceso usando el algoritmo basado en Fibonacci
-    MST32* mst_fib = HEAP_MST32(graph.nodeCount);
-    MST32* res_fib = Prim_Fibo32(&graph, 0, mst_fib);
+    MST32* mst_fib = HEAP_MST32(graph10.nodeCount);
+    MST32* res_fib = Prim_Fibo32(&graph10, 0, mst_fib);
     assert(res_fib == mst_fib);
     
     double w_fib = getWeight(mst_fib);
-    assert(d_eq(w_fib, 4.5));
+    assert(d_eq(w_fib, mst_w10));
     
     free(mst_bin);
     free(mst_fib);
+
+    // -------Test graph5
+    // Reservar la estructura en memoria para guardar resultados del árbol
+    MST32* mst_bin_5 = HEAP_MST32(graph5.nodeCount);
+    assert(mst_bin_5 != NULL);
+    
+    MST32* res_bin_5 = Prim_Binomial32(&graph5, 0, mst_bin_5);
+    assert(res_bin_5 == mst_bin_5);
+    
+    // Recuperar el peso acumulado usando la función getWeight
+    double w_bin_5 = getWeight(mst_bin_5);
+    assert(d_eq(w_bin_5, mst_w5));
+    
+    // Repetir el proceso usando el algoritmo basado en Fibonacci
+    MST32* mst_fib_5 = HEAP_MST32(graph5.nodeCount);
+    MST32* res_fib_5 = Prim_Fibo32(&graph5, 0, mst_fib_5);
+    assert(res_fib_5 == mst_fib_5);
+    
+    double w_fib_5 = getWeight(mst_fib_5);
+    assert(d_eq(w_fib_5, mst_w5));
+    
+    free(mst_bin_5);
+    free(mst_fib_5); 
+    // 
+    // -------Test graph5
+    MST32* mst_bin_15 = HEAP_MST32(graph15.nodeCount);
+    assert(mst_bin_15 != NULL);
+    
+    MST32* res_bin_15 = Prim_Binomial32(&graph15, 0, mst_bin_15);
+    assert(res_bin_15 == mst_bin_15);
+    
+    // Recuperar el peso acumulado usando la función getWeight
+    double w_bin_15 = getWeight(mst_bin_15);
+    assert(d_eq(w_bin_15, mst_w15));
+    
+    // Repetir el proceso usando el algoritmo basado en Fibonacci
+    MST32* mst_fib_15 = HEAP_MST32(graph15.nodeCount);
+    MST32* res_fib_15 = Prim_Fibo32(&graph15, 0, mst_fib_15);
+    assert(res_fib_15 == mst_fib_15);
+    
+    double w_fib_15 = getWeight(mst_fib_15);
+    assert(d_eq(w_fib_15, mst_w15));
+    
+    free(mst_bin_15);
+    free(mst_fib_15);
+    
     printf("OK: test_MST\n");
 }
 
