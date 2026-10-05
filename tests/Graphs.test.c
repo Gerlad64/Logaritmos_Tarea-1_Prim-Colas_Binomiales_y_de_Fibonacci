@@ -1,403 +1,265 @@
-//#define _POSIX_C_SOURCE 199309L
-//#include <stdio.h>
-//#include <Graphs.h>
-//#include <time.h>
-//#include <time.h>
-//#include <assert.h> // assert(int expression)
-//
-//
-//void test_initBinomialQueue32() {
-//    
-//}
-//
-//void test_initFiboQueue32() {
-//
-//
-//}
-//
-//void test_extractMin_Binomial32() {
-//    
-//}
-//
-//void test_extractMin_Fibo32() {
-//    
-//}
-//
-//void test_decreaseKey_Binomial32() {
-//    
-//}
-//
-//void test_decreaseKey_Fibo32() {
-//    
-//}
-//
-//
-///** 
-//int main() {
-//    printf("--------TESTS Graphs.h/Graphs.c-------\n");
-//    
-//    test_initBinomialQueue32();
-//    test_initFiboQueue32();
-//    test_extractMin_Binomial32();
-//    test_extractMin_Fibo32();
-//    test_decreaseKey_Binomial32();
-//    test_decreaseKey_Fibo32();
-//
-//    printf("--------TODOS LOS TESTS PASARON-------\n");
-//    return 0;
-//}
-//*/
-//
-////// ------------------------------------------------------------------
-//// Funciones Auxiliares de Memoria y Generación
-//// ------------------------------------------------------------------
-//
-///**
-// * Crea un grafo completo aleatorio (todos conectados con todos)
-// * Esto garantiza que el grafo sea conexo y siempre exista un MST.
-// */
-//WGraph32* createRandomCompleteGraph(uint32_t nodeCount) {
-//    WGraph32* graph = (WGraph32*)malloc(sizeof(WGraph32));
-//    graph->nodeCount = nodeCount;
-//    
-//    uint64_t edgeCount = (uint64_t)nodeCount * (nodeCount - 1); // Aristas dirigidas
-//    graph->offsets = (uint64_t*)malloc((nodeCount + 1) * sizeof(uint64_t));
-//    graph->edges = (uint32_t*)malloc(edgeCount * sizeof(uint32_t));
-//    graph->weights = (double*)malloc(edgeCount * sizeof(double));
-//
-//    // Generar una matriz temporal para asegurar que el peso u->v sea igual a v->u
-//    double** adjMatrix = (double**)malloc(nodeCount * sizeof(double*));
-//    for (uint32_t i = 0; i < nodeCount; i++) {
-//        adjMatrix[i] = (double*)malloc(nodeCount * sizeof(double));
-//        for (uint32_t j = 0; j < i; j++) {
-//            double w = (rand() % 100) + 1.0; // Pesos aleatorios entre 1 y 100
-//            adjMatrix[i][j] = w;
-//            adjMatrix[j][i] = w;
-//        }
-//    }
-//
-//    // Llenar formato de arreglos contiguos (similar a CSR)
-//    uint64_t currentIndex = 0;
-//    for (uint32_t u = 0; u < nodeCount; u++) {
-//        graph->offsets[u] = currentIndex;
-//        for (uint32_t v = 0; v < nodeCount; v++) {
-//            if (u == v) continue;
-//            graph->edges[currentIndex] = v;
-//            graph->weights[currentIndex] = adjMatrix[u][v];
-//            currentIndex++;
-//        }
-//    }
-//    graph->offsets[nodeCount] = currentIndex;
-//
-//    // Liberar matriz temporal
-//    for (uint32_t i = 0; i < nodeCount; i++) free(adjMatrix[i]);
-//    free(adjMatrix);
-//
-//    return graph;
-//}
-//
-//void freeGraph(WGraph32* graph) {
-//    if (!graph) return;
-//    free(graph->offsets);
-//    free(graph->edges);
-//    free(graph->weights);
-//    free(graph);
-//}
-//
-//MST32* createMST(uint32_t nodeCount) {
-//    MST32* mst = (MST32*)malloc(sizeof(MST32));
-//    mst->nodeCount = nodeCount;
-//    mst->parent = (uint32_t*)malloc(nodeCount * sizeof(uint32_t));
-//    mst->key = (double*)malloc(nodeCount * sizeof(double));
-//    return mst;
-//}
-//
-//void freeMST(MST32* mst) {
-//    if (!mst) return;
-//    free(mst->parent);
-//    free(mst->key);
-//    free(mst);
-//}
-//
-//// ------------------------------------------------------------------
-//// Función Main de Pruebas
-//// ------------------------------------------------------------------
-//int main() {
-//    srand(time(NULL));
-//
-//    // Tamaños requeridos para las pruebas
-//    uint32_t testSizes[] = {5, 10, 15, 20};
-//    int numTests = sizeof(testSizes) / sizeof(testSizes[0]);
-//
-//    printf("Iniciando pruebas del Algoritmo de Prim_Binomial32_Binomial32...\n");
-//    printf("==========================================\n");
-//
-//    for (int t = 0; t < numTests; t++) {
-//        uint32_t V = testSizes[t];
-//        uint32_t sourceNode = 0; 
-//        
-//        printf("\n[Test %d] Grafo de %u Nodos\n", t + 1, V);
-//        
-//        // 1. Crear el grafo y la estructura para almacenar el MST
-//        WGraph32* graph = createRandomCompleteGraph(V);
-//        MST32* mst = createMST(V);
-//        
-//        // 2. Ejecutar la función a testear
-//        // (Asegúrate de que tu implementación devuelva el puntero a dest o maneje bien el retorno)
-//        MST32* result = Prim_Binomial32(graph, sourceNode, mst);
-//        
-//        if (result != NULL) {
-//            double totalMSTWeight = 0.0;
-//            
-//            // 3. Evaluar e ImPrim_Binomial32 ir el resultado
-//            // Sumamos los key (pesos) de todos los nodos excepto la raíz
-//            for (uint32_t i = 0; i < V; i++) {
-//                if (i != sourceNode) {
-//                    totalMSTWeight += result->key[i];
-//                }
-//            }
-//
-//            printf(" -> Ejecucion exitosa.\n");
-//            printf(" -> Peso total del MST: %.2f\n", totalMSTWeight);
-//
-//            // Si es un grafo pequeño (5 nodos), imPrim_Binomial32_Binomial32imos el árbol detallado
-//            if (V == 5) {
-//                printf(" -> Topologia del MST (Nodo: Padre [Peso]):\n");
-//                for (uint32_t i = 0; i < V; i++) {
-//                    if (i == sourceNode) {
-//                        printf("    Nodo %u: RAIZ\n", i);
-//                    } else {
-//                        printf("    Nodo %u: %u [%.2f]\n", i, result->parent[i], result->key[i]);
-//                    }
-//                }
-//            }
-//        } else {
-//            printf(" -> FALLO: La funcion Prim_Binomial32_Binomial32 devolvio NULL.\n");
-//        }
-//        
-//        // 4. Liberar memoria del test actual
-//        freeMST(mst);
-//        freeGraph(graph);
-//    }
-//
-//    printf("\n==========================================\n");
-//    printf("Pruebas finalizadas.\n");
-//
-//    return 0;
-//}
-//
-//
-////// ------------------------------------------------------------------
-////// Herramientas de Benchmarking y Generación
-////// ------------------------------------------------------------------
-////
-////// Generador de 32-bits real, ya que RAND_MAX suele ser 32767 en Linux/Windows
-////uint32_t rand32() {
-////    uint32_t r = 0;
-////    for (int i = 0; i < 4; i++) {
-////        r = (r << 8) ^ (rand() & 0xFF);
-////    }
-////    return r;
-////}
-////
-////// Obtiene el tiempo en segundos
-////double get_time_sec() {
-////    struct timespec ts;
-////    clock_gettime(CLOCK_MONOTONIC, &ts);
-////    return ts.tv_sec + ts.tv_nsec * 1e-9;
-////}
-////
-/////**
-//// * Crea un grafo disperso conexo.
-//// * V: cantidad de nodos.
-//// * E: cantidad de aristas no dirigidas.
-//// */
-////WGraph32* createLargeConnectedGraph(uint32_t V, uint32_t E) {
-////    if (E < V - 1) {
-////        printf("Error: E (%u) debe ser >= V-1 (%u) para ser conexo.\n", E, V - 1);
-////        exit(1);
-////    }
-////
-////    // 1. Arreglos temporales para construir aristas antes del formato final (CSR)
-////    uint32_t* tmpU = (uint32_t*)malloc(E * sizeof(uint32_t));
-////    uint32_t* tmpV = (uint32_t*)malloc(E * sizeof(uint32_t));
-////    double*   tmpW = (double*)malloc(E * sizeof(double));
-////    uint32_t* degree = (uint32_t*)calloc(V, sizeof(uint32_t));
-////
-////    uint32_t edgeIdx = 0;
-////
-////    // 2. Garantizar que el grafo sea conexo creando un árbol aleatorio (V-1 aristas)
-////    for (uint32_t i = 1; i < V; i++) {
-////        uint32_t u = i;
-////        uint32_t v = rand32() % i; // Conectar nodo i con algún nodo ya en el árbol
-////        double w = (rand32() % 1000) + 1.0; 
-////        
-////        tmpU[edgeIdx] = u;
-////        tmpV[edgeIdx] = v;
-////        tmpW[edgeIdx] = w;
-////        
-////        degree[u]++;
-////        degree[v]++;
-////        edgeIdx++;
-////    }
-////
-////    // 3. Rellenar las aristas restantes aleatoriamente
-////    while (edgeIdx < E) {
-////        uint32_t u = rand32() % V;
-////        uint32_t v = rand32() % V;
-////        if (u == v) continue; // Evitar self-loops por simplicidad
-////
-////        double w = (rand32() % 1000) + 1.0;
-////        
-////        tmpU[edgeIdx] = u;
-////        tmpV[edgeIdx] = v;
-////        tmpW[edgeIdx] = w;
-////        
-////        degree[u]++;
-////        degree[v]++;
-////        edgeIdx++;
-////    }
-////
-////    // 4. Construir la estructura WGraph32
-////    WGraph32* graph = (WGraph32*)malloc(sizeof(WGraph32));
-////    graph->nodeCount = V;
-////    graph->offsets = (uint64_t*)malloc((V + 1) * sizeof(uint64_t));
-////    
-////    // Al ser no dirigido, se guarda el doble de aristas
-////    uint64_t totalDirectedEdges = (uint64_t)E * 2; 
-////    graph->edges = (uint32_t*)malloc(totalDirectedEdges * sizeof(uint32_t));
-////    graph->weights = (double*)malloc(totalDirectedEdges * sizeof(double));
-////
-////    // Calcular prefix sums para offsets
-////    uint64_t currentOffset = 0;
-////    for (uint32_t i = 0; i < V; i++) {
-////        graph->offsets[i] = currentOffset;
-////        currentOffset += degree[i];
-////    }
-////    graph->offsets[V] = currentOffset; // Debe coincidir con totalDirectedEdges
-////
-////    // Copiar offsets temporales para insertar
-////    uint64_t* insertOffsets = (uint64_t*)malloc(V * sizeof(uint64_t));
-////    for (uint32_t i = 0; i < V; i++) {
-////        insertOffsets[i] = graph->offsets[i];
-////    }
-////
-////    // Llenar edges y weights
-////    for (uint32_t i = 0; i < E; i++) {
-////        uint32_t u = tmpU[i];
-////        uint32_t v = tmpV[i];
-////        double w = tmpW[i];
-////
-////        // u -> v
-////        uint64_t posU = insertOffsets[u]++;
-////        graph->edges[posU] = v;
-////        graph->weights[posU] = w;
-////
-////        // v -> u
-////        uint64_t posV = insertOffsets[v]++;
-////        graph->edges[posV] = u;
-////        graph->weights[posV] = w;
-////    }
-////
-////    // Limpieza
-////    free(tmpU); free(tmpV); free(tmpW);
-////    free(degree); free(insertOffsets);
-////
-////    return graph;
-////}
-////
-////void freeGraph(WGraph32* graph) {
-////    if (!graph) return;
-////    free(graph->offsets);
-////    free(graph->edges);
-////    free(graph->weights);
-////    free(graph);
-////}
-////
-////MST32* createMST(uint32_t V) {
-////    MST32* mst = (MST32*)malloc(sizeof(MST32));
-////    mst->nodeCount = V;
-////    mst->parent = (uint32_t*)malloc(V * sizeof(uint32_t));
-////    mst->key = (double*)malloc(V * sizeof(double));
-////    return mst;
-////}
-////
-////void freeMST(MST32* mst) {
-////    if (!mst) return;
-////    free(mst->parent);
-////    free(mst->key);
-////    free(mst);
-////}
-////
-////// ------------------------------------------------------------------
-////// Ejecutor de Serie
-////// ------------------------------------------------------------------
-////void runSeriesTest(int i_pow, int j_pow, int repetitions) {
-////    uint32_t V = 1U << i_pow;
-////    uint32_t E = 1U << j_pow;
-////
-////    printf("\nConfiguracion: i = %d (V = %u), j = %d (E = %u)\n", i_pow, V, j_pow, E);
-////    
-////    double total_time = 0.0;
-////
-////    for (int r = 1; r <= repetitions; r++) {
-////        // ImPrim_Binomial32ir progreso en misma linea
-////        printf("\r  -> Generando y probando repeticion %d/%d ...", r, repetitions);
-////        fflush(stdout);
-////
-////        WGraph32* graph = createLargeConnectedGraph(V, E);
-////        MST32* dest = createMST(V);
-////
-////        double t_start = get_time_sec();
-////        
-////        MST32* result = Prim_Binomial32(graph, 0, dest);
-////        
-////        double t_end = get_time_sec();
-////        double elapsed = t_end - t_start;
-////
-////        if (result == NULL) {
-////            printf("\nERROR: Prim_Binomial32 devolvió NULL en la repeticion %d.\n", r);
-////            exit(1);
-////        }
-////
-////        total_time += elapsed;
-////
-////        freeGraph(graph);
-////        freeMST(dest);
-////    }
-////
-////    double avg_time = total_time / repetitions;
-////    printf("\r  -> Completado. Tiempo Promedio de Ejecucion: %.4f segundos\n", avg_time);
-////}
-////
-////// ------------------------------------------------------------------
-////// Main
-////// ------------------------------------------------------------------
-////int main() {
-////    srand((unsigned int)time(NULL));
-////
-////    printf("=========================================================\n");
-////    printf("   BENCHMARKING MASIVO - ALGORITMO DE Prim_Binomial32 (V=2^i, E=2^j)\n");
-////    printf("=========================================================\n");
-////
-////    int repetitions = 10;
-////
-////    // SERIE A: i fijo (20), j varia
-////    printf("\n--- INICIANDO SERIE A (V fijo, i=20) ---\n");
-////    int j_serieA[] = {20, 21, 22, 23, 24};
-////    for (int k = 0; k < 5; k++) {
-////        runSeriesTest(20, j_serieA[k], repetitions);
-////    }
-////
-////    // SERIE B: j fijo (24), i varia
-////    printf("\n--- INICIANDO SERIE B (E fijo, j=24) ---\n");
-////    int i_serieB[] = {18, 19, 20, 21, 22};
-////    for (int k = 0; k < 5; k++) {
-////        runSeriesTest(i_serieB[k], 24, repetitions);
-////    }
-////
-////    printf("\n=========================================================\n");
-////    printf("Pruebas finalizadas.\n");
-////
-////    return 0;
-////}
+
+#include <Graph.h>
+#include <assert.h>
+
+/** Grafo basic-graph.jpg */
+WGraph32 graph;
+uint32_t edges[18] = {
+    1, 2,    // nodo 0
+    0, 4,    // nodo 1
+    0, 3, 6, // nodo 2
+    2, 5,    // nodo 3
+    1,       // nodo 4
+    3, 8, 9, // nodo 5
+    2, 7,    // nodo 6
+    6,       // nodo 7
+    5,       // nodo 8
+    5        // nodo 9
+};
+uint64_t offsets[11] = {
+    0,
+    2,
+    4,
+    7,
+    9,
+    10,
+    13,
+    15,
+    16,
+    17,
+    18
+};
+double weights[18] = {
+    0.1, 0.2,
+    0.1, 0.3,
+    0.2, 0.4, 0.5,
+    0.4, 0.6, 
+    0.3, 
+    0.6, 0.7, 0.8,
+    0.5, 0.9,
+    0.9,
+    0.7,
+    0.8,
+};
+
+
+void init_test_graphs() {
+    graph.nodeCount = 10;
+    graph.edges = edges;
+    graph.offsets = offsets;
+    graph.weights = weights;
+}
+
+static int d_eq(double a, double b) {
+    return fabs(a - b) < 1e-6;
+}
+
+void test_addChildren() {
+    /**
+     * Testea la función addChildren simulando agregar al nodo 1 como hijo del nodo 0.
+     * Se verifica lo siguiente:
+     * - El padre del nodo 1 debe actualizarse al nodo 0 (assert: dest.parents[1] == 0).
+     * - El primer hijo del nodo 0 debe ser el nodo 1 (assert: dest.children[0] == 1).
+     * - El grado del nodo 0 (su cantidad de hijos) debe aumentar a 1 (assert: dest.deg[0] == 1).
+     */
+    uint32_t parents[2] = {ROOT, ROOT};
+    uint32_t roots[2] = {0, 1};
+    uint32_t children[64]; // 2 * log 2^32 == 2 * 32 == 64
+    for (int i = 0; i < 64; i++) children[i] = NO_CHILD;
+    uint32_t deg[2] = {0, 0};
+    
+    BinomialTreeForest32 dest = {
+        .nodeCount = 2, .rootCount = 2, .minNode = 0,
+        .parents = parents, .roots = roots, .children = children, .deg = deg
+    };
+    
+    // Se inserta el nodo 1 como hijo del nodo 0
+    addChildren(&dest, 0, 1);
+    assert(dest.parents[1] == 0);
+    assert(dest.children[0] == 1); 
+    assert(dest.deg[0] == 1);
+    printf("OK: test_addChildren\n");
+}
+
+void test_swapParentWithChild() {
+    /**
+     * Testea swapParentWithChild partiendo de un estado donde el nodo 1 es hijo del nodo 0.
+     * Tras ejecutar la función, se verifica con asserts que los roles se hayan invertido exitosamente:
+     * - El nuevo padre del nodo 0 debe ser el nodo 1 (assert: dest.parents[0] == 1).
+     * - El nodo 1 debe quedar como raíz, es decir, su padre debe ser ROOT (assert: dest.parents[1] == ROOT).
+     */
+    uint32_t parents[2] = {ROOT, 0};
+    uint32_t roots[2] = {0, FREE};
+    uint32_t children[64];
+    for (int i = 0; i < 64; i++) children[i] = NO_CHILD;
+    children[0] = 1; // 1 es hijo de 0
+    uint32_t deg[2] = {1, 0};
+    
+    BinomialTreeForest32 dest = {
+        .nodeCount = 2, .rootCount = 1, .minNode = 0,
+        .parents = parents, .roots = roots, .children = children, .deg = deg
+    };
+    
+    // swap entre 0 (parent) y 1 (children)
+    swapParentWithChild(&dest, 0, 1);
+    assert(dest.parents[0] == 1);
+    assert(dest.parents[1] == ROOT);
+    printf("OK: test_swapParentWithChild\n");
+}
+
+void test_cut_cascadingCut() {
+    /**
+     * Testea las funciones cut y cascadingCut configurando manualmente una cadena de nodos (0 -> 1 -> 2).
+     * - Primero ejecuta cut para desvincular el nodo 2 del nodo 1, usando un arreglo de flags.
+     * - Luego ejecuta cascadingCut en el nodo 1 para simular la propagación de cortes en el árbol.
+     * La verificación actual comprueba que los cálculos de índices y modificaciones de arreglos 
+     * se ejecuten sin segfaults ni errores de memoria
+     */
+    uint32_t parents[3] = {ROOT, 0, 1};
+    uint32_t roots[3] = {0, FREE, FREE};
+    uint32_t children[96];
+    for (int i = 0; i < 96; i++) children[i] = NO_CHILD;
+    children[0] = 1;  // 1 es hijo de 0
+    children[32] = 2; // 2 es hijo de 1
+    uint32_t deg[3] = {1, 1, 0};
+    
+    BinomialTreeForest32 dest = {
+        .nodeCount = 3, .rootCount = 1, .minNode = 0,
+        .parents = parents, .roots = roots, .children = children, .deg = deg
+    };
+    
+    uint8_t flags[3] = {0, 0, 0};
+    // Desvincular 2 de la lista de hijos de 1
+    cut(&dest, 2, 1, flags);
+    
+    // Evaluar propagación de cortes
+    cascadingCut(&dest, 1, flags);
+    printf("OK: test_cut_cascadingCut\n");
+}
+
+void test_carry() {
+    /**
+     * Testea la función carry simulando un acarreo lógico de un nodo de grado 0 (el nodo 0) dentro del bosque.
+     * - Se verifica que la función recorra correctamente la estructura y consulte el arreglo de 
+     *   nodeValues sin arrojar errores de acceso a memoria.
+     */
+    double values[2] = {10.0, 5.0};
+    uint32_t parents[2] = {ROOT, ROOT};
+    uint32_t roots[2] = {0, 1};
+    uint32_t children[64];
+    for (int i = 0; i < 64; i++) children[i] = NO_CHILD;
+    uint32_t deg[2] = {0, 0};
+    
+    BinomialTreeForest32 dest = {
+        .nodeCount = 2, .rootCount = 2, .minNode = 1,
+        .parents = parents, .roots = roots, .children = children, .deg = deg
+    };
+    
+    // Acarreo lógico de un nodo en el bosque
+    carry(&dest, values, 0, 0);
+    printf("OK: test_carry\n");
+}
+
+
+void test_BinomialQueue() {
+    /**
+     * Testea el flujo completo de una Cola Binomial:
+     * 1. Inicializa la cola usando STACK_BINOMIAL_QUEUE con 5 valores; verifica con assert que su nodeCount sea 5.
+     * 2. Extrae el mínimo con extractMin_Binomial32; verifica con assert que retorne el nodo 3 (1.0).
+     * 3. Modifica la clave del nodo 0 a 0.5 usando decreaseKey_Binomial32.
+     * 4. Extrae nuevamente el mínimo; verifica con assert que ahora retorne el nodo 0, demostrando que la cola se reordenó.
+     * 5. Finalmente, verifica que HEAP_BINOMIAL_QUEUE asigne correctamente la memoria en el heap (assert != NULL).
+     */
+    double values[5] = {5.0, 3.0, 7.0, 1.0, 9.0};
+    
+    // Inicialización de la cola binomial en el stack
+    BinomialTreeForest32* bq = STACK_BINOMIAL_QUEUE(5, values);
+    assert(bq != NULL);
+    assert(bq->nodeCount == 5);
+    
+    // Extracción del nodo con valor mínimo
+    uint32_t min = extractMin_Binomial32(bq, values);
+    assert(min == 3); // Nodo 3 vale 1.0
+    
+    // Reducción de la clave para ajustar la estructura
+    decreaseKey_Binomial32(bq, values, 0, 0.5);
+    values[0] = 0.5; 
+    min = extractMin_Binomial32(bq, values);
+    assert(min == 0);
+    
+    // Inicialización en el heap para verificar manejo dinámico
+    BinomialTreeForest32* heap_bq = HEAP_BINOMIAL_QUEUE(5, values);
+    assert(heap_bq != NULL);
+    free(heap_bq);
+    
+    printf("OK: test_BinomialQueue\n");
+}
+
+void test_FiboQueue() {
+    double values[5] = {5.0, 3.0, 7.0, 1.0, 9.0};
+    
+    // Inicialización secuencial de la cola de Fibonacci en el stack
+    BinomialTreeForest32* fq = STACK_FIBO_QUEUE(5, values);
+    assert(fq != NULL);
+    assert(fq->nodeCount == 5);
+    
+    uint32_t min = extractMin_Fibo32(fq, values);
+    assert(min == 3);
+    
+    uint8_t flags[5] = {0};
+    decreaseKey_Fibo32(fq, values, 0, 0.5, flags);
+    values[0] = 0.5;
+    min = extractMin_Fibo32(fq, values);
+    assert(min == 0);
+    
+    BinomialTreeForest32* heap_fq = HEAP_FIBO_QUEUE(5, values);
+    assert(heap_fq != NULL);
+    free(heap_fq);
+    
+    printf("OK: test_FiboQueue\n");
+}
+
+/**
+ * Test de Prim usando la estructura MST32.
+ * El MST del grafo base tiene un peso verificado de 4.5.
+ */
+void test_MST() {
+    // Reservar la estructura en memoria para guardar resultados del árbol
+    MST32* mst_bin = HEAP_MST32(graph.nodeCount);
+    assert(mst_bin != NULL);
+    
+    MST32* res_bin = Prim_Binomial32(&graph, 0, mst_bin);
+    assert(res_bin == mst_bin);
+    
+    // Recuperar el peso acumulado usando la función getWeight
+    double w_bin = getWeight(mst_bin);
+    assert(d_eq(w_bin, 4.5));
+    
+    // Repetir el proceso usando el algoritmo basado en Fibonacci
+    MST32* mst_fib = HEAP_MST32(graph.nodeCount);
+    MST32* res_fib = Prim_Fibo32(&graph, 0, mst_fib);
+    assert(res_fib == mst_fib);
+    
+    double w_fib = getWeight(mst_fib);
+    assert(d_eq(w_fib, 4.5));
+    
+    free(mst_bin);
+    free(mst_fib);
+    printf("OK: test_MST\n");
+}
+
+int main() {
+    printf("--------TESTS Graphs.h/Graphs.c-------\n");
+    init_test_graphs();
+    
+    test_addChildren();
+    test_swapParentWithChild();
+    test_cut_cascadingCut();
+    test_carry();
+    test_BinomialQueue();
+    test_FiboQueue();
+    test_MST();
+    
+    printf("--------TODOS LOS TESTS PASARON-------\n");
+    return 0;
+}
