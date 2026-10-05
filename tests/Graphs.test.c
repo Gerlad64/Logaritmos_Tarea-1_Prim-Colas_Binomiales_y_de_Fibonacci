@@ -1,5 +1,7 @@
 
-#include <Graph.h>
+#include <Graphs.h>
+#include <stdio.h>
+#include <math.h>
 #include <assert.h>
 
 /** Grafo basic-graph.jpg */
