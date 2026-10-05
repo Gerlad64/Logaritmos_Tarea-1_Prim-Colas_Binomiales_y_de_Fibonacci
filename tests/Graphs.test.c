@@ -322,73 +322,87 @@ void test_FiboQueue() {
  */
 void test_MST() {
     // -----TEST graph10
-    // 
-    // Reservar la estructura en memoria para guardar resultados del árbol
-    MST32* mst_bin = HEAP_MST32(graph10.nodeCount);
-    assert(mst_bin != NULL);
     
-    MST32* res_bin = Prim_Binomial32(&graph10, 0, mst_bin);
-    assert(res_bin == mst_bin);
+    // Raíces a evaluar: 0, 5 (10/2), 9 (10-1)
+    uint32_t roots_10[3] = {0, graph10.nodeCount / 2, graph10.nodeCount - 1};
     
-    // Recuperar el peso acumulado usando la función getWeight
-    double w_bin = getWeight(mst_bin);
-    assert(d_eq(w_bin, mst_w10));
-    
-    // Repetir el proceso usando el algoritmo basado en Fibonacci
-    MST32* mst_fib = HEAP_MST32(graph10.nodeCount);
-    MST32* res_fib = Prim_Fibo32(&graph10, 0, mst_fib);
-    assert(res_fib == mst_fib);
-    
-    double w_fib = getWeight(mst_fib);
-    assert(d_eq(w_fib, mst_w10));
-    
-    free(mst_bin);
-    free(mst_fib);
+    for (int i = 0; i < 3; i++) {
+        uint32_t root = roots_10[i];
+
+        // --- Algoritmo de Prim
+        MST32* mst_bin_10 = HEAP_MST32(graph10.nodeCount);
+        assert(mst_bin_10 != NULL);
+        
+        MST32* res_bin_10 = Prim_Binomial32(&graph10, root, mst_bin_10);
+        assert(res_bin_10 == mst_bin_10);
+        assert(d_eq(getWeight(mst_bin_10), mst_w10));
+        
+        free(mst_bin_10);
+
+        // --- Algoritmo de Prim
+        MST32* mst_fib_10 = HEAP_MST32(graph10.nodeCount);
+        assert(mst_fib_10 != NULL);
+        
+        MST32* res_fib_10 = Prim_Fibo32(&graph10, root, mst_fib_10);
+        assert(res_fib_10 == mst_fib_10);
+        assert(d_eq(getWeight(mst_fib_10), mst_w10));
+        
+        free(mst_fib_10);
+    }
 
     // -------Test graph5
-    // Reservar la estructura en memoria para guardar resultados del árbol
-    MST32* mst_bin_5 = HEAP_MST32(graph5.nodeCount);
-    assert(mst_bin_5 != NULL);
-    
-    MST32* res_bin_5 = Prim_Binomial32(&graph5, 0, mst_bin_5);
-    assert(res_bin_5 == mst_bin_5);
-    
-    // Recuperar el peso acumulado usando la función getWeight
-    double w_bin_5 = getWeight(mst_bin_5);
-    assert(d_eq(w_bin_5, mst_w5));
-    
-    // Repetir el proceso usando el algoritmo basado en Fibonacci
-    MST32* mst_fib_5 = HEAP_MST32(graph5.nodeCount);
-    MST32* res_fib_5 = Prim_Fibo32(&graph5, 0, mst_fib_5);
-    assert(res_fib_5 == mst_fib_5);
-    
-    double w_fib_5 = getWeight(mst_fib_5);
-    assert(d_eq(w_fib_5, mst_w5));
-    
-    free(mst_bin_5);
-    free(mst_fib_5); 
+    uint32_t roots_5[3] = {0, graph5.nodeCount / 2, graph5.nodeCount - 1};
+    for (int i = 0; i < 3; i++) {
+        uint32_t root = roots_5[i];
+        // --- Algoritmo de Prim Binomial Heap ---
+        // Reservar la estructura en memoria para guardar resultados del árbol
+        MST32* mst_bin_5 = HEAP_MST32(graph5.nodeCount);
+        assert(mst_bin_5 != NULL);
+        
+        MST32* res_bin_5 = Prim_Binomial32(&graph5, root, mst_bin_5);
+        assert(res_bin_5 == mst_bin_5);
+        // Recuperar el peso acumulado usando la función getWeight
+        assert(d_eq(getWeight(mst_bin_5), mst_w5));
+        
+        free(mst_bin_5);
+
+        // --- Algoritmo de Prim Fibonacci Heap ---
+        // Repetir el proceso usando el algoritmo basado en Fibonacci
+        MST32* mst_fib_5 = HEAP_MST32(graph5.nodeCount);
+        assert(mst_fib_5 != NULL);
+        
+        MST32* res_fib_5 = Prim_Fibo32(&graph5, root, mst_fib_5);
+        assert(res_fib_5 == mst_fib_5);
+        assert(d_eq(getWeight(mst_fib_5), mst_w5));
+        
+        free(mst_fib_5); 
+    }
     // 
-    // -------Test graph5
-    MST32* mst_bin_15 = HEAP_MST32(graph15.nodeCount);
-    assert(mst_bin_15 != NULL);
-    
-    MST32* res_bin_15 = Prim_Binomial32(&graph15, 0, mst_bin_15);
-    assert(res_bin_15 == mst_bin_15);
-    
-    // Recuperar el peso acumulado usando la función getWeight
-    double w_bin_15 = getWeight(mst_bin_15);
-    assert(d_eq(w_bin_15, mst_w15));
-    
-    // Repetir el proceso usando el algoritmo basado en Fibonacci
-    MST32* mst_fib_15 = HEAP_MST32(graph15.nodeCount);
-    MST32* res_fib_15 = Prim_Fibo32(&graph15, 0, mst_fib_15);
-    assert(res_fib_15 == mst_fib_15);
-    
-    double w_fib_15 = getWeight(mst_fib_15);
-    assert(d_eq(w_fib_15, mst_w15));
-    
-    free(mst_bin_15);
-    free(mst_fib_15);
+    // -------Test graph15
+    uint32_t roots_15[3] = {0, graph15.nodeCount / 2, graph15.nodeCount - 1};
+    for (int i = 0; i < 3; i++) {
+        uint32_t root = roots_15[i];
+
+        // --- Algoritmo de Prim 
+        MST32* mst_bin_15 = HEAP_MST32(graph15.nodeCount);
+        assert(mst_bin_15 != NULL);
+        
+        MST32* res_bin_15 = Prim_Binomial32(&graph15, root, mst_bin_15);
+        assert(res_bin_15 == mst_bin_15);
+        assert(d_eq(getWeight(mst_bin_15), mst_w15));
+        
+        free(mst_bin_15);
+
+        // --- Algoritmo de Prim 
+        MST32* mst_fib_15 = HEAP_MST32(graph15.nodeCount);
+        assert(mst_fib_15 != NULL);
+        
+        MST32* res_fib_15 = Prim_Fibo32(&graph15, root, mst_fib_15);
+        assert(res_fib_15 == mst_fib_15);
+        assert(d_eq(getWeight(mst_fib_15), mst_w15));
+        
+        free(mst_fib_15);
+    }
     
     printf("OK: test_MST\n");
 }
