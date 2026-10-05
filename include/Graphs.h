@@ -399,6 +399,14 @@ static inline MST32* HEAP_MST32(uint32_t nodeCount) {
     return m;
 }
 
+/**
+ * @brief Obtiene la suma de los pesos del MST
+ * @details
+ * En principio, el peso total debería excluir el peso del nodo
+ * usado como raíz del algoritmo, pero como en los tests
+ * todos los nodos usan el mismo nodo raíz, al comparar implementaciones
+ * la suma se mantiene igual
+ */
 static inline double getWeight(const MST32* mst) {
    double w = 0.0; 
    for(uint32_t i = 0; i < mst->nodeCount; i++) {

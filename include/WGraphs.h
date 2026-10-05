@@ -54,6 +54,9 @@ typedef struct {
 } WGraph32;
 
 
+/**
+ * @brief crea un WGraph32 de N nodos y E aristas en el stack
+ */
 #define STACK_WGRAPH32(N, E) \
     { \
         .nodeCount = (N), \
@@ -62,6 +65,9 @@ typedef struct {
         .weights = (double[2*(E)]){0} \
     }
 
+/**
+* @brief crea un WGraph32 de N nodos y E aristas en el heap
+*/
 static inline WGraph32* HEAP_WGRAPH32(uint32_t n, uint32_t e) {
     size_t off_size = ((size_t)n + 1) * sizeof(uint64_t);
     size_t w_size = (size_t)e * 2 * sizeof(double);
@@ -86,6 +92,9 @@ static inline WGraph32* HEAP_WGRAPH32(uint32_t n, uint32_t e) {
     return graph;
 }
 
+/**
+ * @brief Crea un WGraph32 de 2^i nodos y 2^j aristas en el heap.
+ */
 static inline WGraph32* HEAP_WGRAPH32_IJ(uint8_t i, uint8_t j) {
     if (i > 31 || j > 58) return NULL;
     return HEAP_WGRAPH32((uint32_t)1 << i, (uint32_t)1 << j);
@@ -114,6 +123,9 @@ static inline char* randomWGraph32Pool(uint8_t max_j) {
    return malloc(poolSize);
 }
 
+/**
+ * @brief Establece una semilla aleatoria llamando a setSeed. 
+ */
 void randomWGraph32Seed(uint64_t seed);
 
 /**

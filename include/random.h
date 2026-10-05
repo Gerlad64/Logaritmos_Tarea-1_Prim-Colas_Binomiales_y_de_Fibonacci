@@ -7,6 +7,7 @@
 /** Estado del generador. Contiene una semilla fija y una secuencia */
 static pcg32_random_t randomState = PCG32_INITIALIZER;
 
+/** Establece una semilla en el generador usando una misma secuencia */
 static inline void setSeed(uint64_t seed) {
     pcg32_srandom_r(&randomState, seed, (uint64_t)67);
 }

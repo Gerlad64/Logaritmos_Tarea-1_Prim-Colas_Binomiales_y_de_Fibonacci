@@ -18,17 +18,34 @@ static inline uint32_t lowbias32(uint32_t x) {
     return x;
 }
 
+/**
+ * @brief estructura auxiliar para manejar el hash
+ * 
+ */
 typedef struct {
+    /** tamaño de la tabla, usado como mascara para operaciones con bits
+     * su valor es 2^exp - 1
+      */
     uint64_t mask;
+    /** Tabla para almacenar valores del hash y consultarlos en O(1) */
     uint64_t slots[];
 } EdgeHash;
 
+/**
+ * @brief Dada una cantidad máxima de aristas a usar, devuelve el tamaño en memoria del hash.
+ * @param maxEdges La cantidad máxima de aristas a usar en el hash.
+ * @returns tamaño de la tabla hash, esto es, tamaño de la estructura EdgeHash más el espacio de la tabla
+ */
 static inline size_t hash_size(uint64_t maxEdges) {
     uint64_t tableSize = 1;
     while( tableSize < 2 * maxEdges ) tableSize <<= 1;
     return sizeof(EdgeHash) + tableSize * sizeof(uint64_t);
 }
 
+/**
+ * @brief Inicializa una tabla hash usando una pool de memoria existente o
+ * reservándo la memoria necesaria en el HEAP.
+ */
 static inline EdgeHash* hash_alloc(uint64_t maxEdges, char* pool) {
     uint64_t tableSize = 1;
     
@@ -38,7 +55,7 @@ static inline EdgeHash* hash_alloc(uint64_t maxEdges, char* pool) {
     size_t totalSize = sizeof(EdgeHash) + tableSize * sizeof(uint64_t);
     EdgeHash* table = NULL;
     
-    if(pool == NULL)
+    if(pool == NULL) // no se porporcionó una pool
         table = (EdgeHash*)calloc(1, totalSize);
     else {
         memset(pool, 0, totalSize);
